@@ -1,0 +1,5 @@
+<RCC>
+    <qresource prefix="/">
+        <file>HomerChokeSound.wav</file>
+    </qresource>
+</RCC>

@@ -4,7 +4,6 @@
 #include <QMainWindow>
 #include <menubtn.h>
 #include <QLabel>
-#include <clickablelabel.h>
 
 class MainWindow : public QMainWindow
 {
@@ -27,6 +26,7 @@ private:
     QLabel *onlinelbl;
     QLabel *exitlbl;
     QLabel *homerlbl;
+    QLabel *homie;
 
 private slots:
     void onStartClicked(bool);

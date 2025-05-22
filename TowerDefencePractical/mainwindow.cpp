@@ -1,6 +1,8 @@
 #include "mainwindow.h"
 #include <QFont>
 #include <QApplication>
+#include <QPixmap>
+#include <QSoundEffect>
 
 MainWindow::MainWindow(QWidget *parent)
     : QMainWindow(parent)
@@ -8,11 +10,11 @@ MainWindow::MainWindow(QWidget *parent)
     setFixedSize(1200, 800);
     setStyleSheet("background-color: black;");
 
-
     ///Menu items
 
     //Menu labels
     //label->setStyleSheet("QLabel { font-size: 20px; }");
+
 
     menulbl = new QLabel(this);
     menulbl->setText("START");
@@ -53,6 +55,7 @@ MainWindow::MainWindow(QWidget *parent)
     homer = new MenuBtn(this);
     homer->move(width()/2-homer->width()/2,535);
     connect(homer, &MenuBtn::clicked, this, &MainWindow::onHomerClicked);
+
 }
 
 MainWindow::~MainWindow()
@@ -61,8 +64,14 @@ MainWindow::~MainWindow()
 
 void MainWindow::onStartClicked(bool state)
 {
+
     if (!state)
     {
+        QSoundEffect *effect = new QSoundEffect(this);
+        effect->setSource(QUrl("qrc:/ClickEffect.wav"));
+        effect->setVolume(0.5); // 0.0 to 1.0
+        effect->play();
+
         //hide all the menu buttons and labels
         start->hide();
         menulbl->hide();
@@ -80,6 +89,11 @@ void MainWindow::onOnlineClicked(bool state)
 {
     if (!state)
     {
+        QSoundEffect *effect = new QSoundEffect(this);
+        effect->setSource(QUrl("qrc:/ClickEffect.wav"));
+        effect->setVolume(0.5); // 0.0 to 1.0
+        effect->play();
+
         //hide all the menu buttons and labels
         start->hide();
         menulbl->hide();
@@ -89,6 +103,8 @@ void MainWindow::onOnlineClicked(bool state)
         exitlbl->hide();
         homer->hide();
         homerlbl->hide();
+
+
     }
 
 }
@@ -97,6 +113,11 @@ void MainWindow::onExitClicked(bool state)
 {
     if (!state)
     {
+        QSoundEffect *effect = new QSoundEffect(this);
+        effect->setSource(QUrl("qrc:/ClickEffect.wav"));
+        effect->setVolume(0.5); // 0.0 to 1.0
+        effect->play();
+
         QApplication::quit();
     }
 }
@@ -105,6 +126,11 @@ void MainWindow::onHomerClicked(bool state)
 {
     if (!state)
     {
+        QSoundEffect *Clickeffect = new QSoundEffect(this);
+        Clickeffect->setSource(QUrl("qrc:/ClickEffect.wav"));
+        Clickeffect->setVolume(0.5); // 0.0 to 1.0
+        Clickeffect->play();
+
         //hide all the menu buttons and labels
         start->hide();
         menulbl->hide();
@@ -114,6 +140,18 @@ void MainWindow::onHomerClicked(bool state)
         exitlbl->hide();
         homer->hide();
         homerlbl->hide();
-    }
 
+        QPixmap p(":/homer2.png");
+        homie = new QLabel(this);
+        homie->setFixedSize(p.width(), p.height());
+        homie->move(width()/8, height()/4);
+        homie->setPixmap(p);
+        homie->show();
+
+        // In your widget or class
+        QSoundEffect *effect = new QSoundEffect(this);
+        effect->setSource(QUrl("qrc:/HomerChokeSound.wav"));
+        effect->setVolume(0.5); // 0.0 to 1.0
+        effect->play();
+    }
 }

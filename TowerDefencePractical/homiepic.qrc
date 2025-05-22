@@ -1,0 +1,5 @@
+<RCC>
+    <qresource prefix="/">
+        <file>homer.jpg</file>
+    </qresource>
+</RCC>
