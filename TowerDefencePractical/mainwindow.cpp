@@ -1,5 +1,6 @@
 #include "mainwindow.h"
 #include <QFont>
+#include <QApplication>
 
 MainWindow::MainWindow(QWidget *parent)
     : QMainWindow(parent)
@@ -9,28 +10,12 @@ MainWindow::MainWindow(QWidget *parent)
 
 
     ///Menu items
-    //connect(label, &ClickableLabel::clicked, this, &MainWindow::onLabelClicked)
-    start = new MenuBtn(this);
-    start->move(width()/2-start->width()/2,75);
-    //connect(start, &MenuBtn::clicked, this, &MainWindow::onStartClicked);
-
-    online = new MenuBtn(this);
-    online->move(width()/2-online->width()/2,215);
-    //connect(start, &MenuBtn::clicked, this, &MainWindow::onOnlineClicked);
-
-    exit = new MenuBtn(this);
-    exit->move(width()/2-exit->width()/2,375);
-     //connect(start, &MenuBtn::clicked, this, &MainWindow::onExitClicked);
-
-    homer = new MenuBtn(this);
-    homer->move(width()/2-homer->width()/2,535);
-    //connect(start, &MenuBtn::clicked, this, &MainWindow::onHomerClicked);
 
     //Menu labels
     //label->setStyleSheet("QLabel { font-size: 20px; }");
 
     menulbl = new QLabel(this);
-    menulbl->setText("MENU");
+    menulbl->setText("START");
     menulbl->setStyleSheet("QLabel { font-size: 30px; color: white; }");
     menulbl->move(width()/2-menulbl->width()/2,96);
 
@@ -51,9 +36,84 @@ MainWindow::MainWindow(QWidget *parent)
     homerlbl->setStyleSheet("color: blue;");
     homerlbl->setFont(QFont("Comic Sans MS", 15));
     homerlbl->move(width()/2-homerlbl->width()/2,556);
+
+    //connect(label, &ClickableLabel::clicked, this, &MainWindow::onLabelClicked)
+    start = new MenuBtn(this);
+    start->move(width()/2-start->width()/2,75);
+    connect(start, &MenuBtn::clicked, this, &MainWindow::onStartClicked);
+
+    online = new MenuBtn(this);
+    online->move(width()/2-online->width()/2,215);
+    connect(online, &MenuBtn::clicked, this, &MainWindow::onOnlineClicked);
+
+    exit = new MenuBtn(this);
+    exit->move(width()/2-exit->width()/2,375);
+    connect(exit, &MenuBtn::clicked, this, &MainWindow::onExitClicked);
+
+    homer = new MenuBtn(this);
+    homer->move(width()/2-homer->width()/2,535);
+    connect(homer, &MenuBtn::clicked, this, &MainWindow::onHomerClicked);
 }
 
 MainWindow::~MainWindow()
 {
 }
 
+void MainWindow::onStartClicked(bool state)
+{
+    if (!state)
+    {
+        //hide all the menu buttons and labels
+        start->hide();
+        menulbl->hide();
+        online->hide();
+        onlinelbl->hide();
+        exit->hide();
+        exitlbl->hide();
+        homer->hide();
+        homerlbl->hide();
+    }
+
+}
+
+void MainWindow::onOnlineClicked(bool state)
+{
+    if (!state)
+    {
+        //hide all the menu buttons and labels
+        start->hide();
+        menulbl->hide();
+        online->hide();
+        onlinelbl->hide();
+        exit->hide();
+        exitlbl->hide();
+        homer->hide();
+        homerlbl->hide();
+    }
+
+}
+
+void MainWindow::onExitClicked(bool state)
+{
+    if (!state)
+    {
+        QApplication::quit();
+    }
+}
+
+void MainWindow::onHomerClicked(bool state)
+{
+    if (!state)
+    {
+        //hide all the menu buttons and labels
+        start->hide();
+        menulbl->hide();
+        online->hide();
+        onlinelbl->hide();
+        exit->hide();
+        exitlbl->hide();
+        homer->hide();
+        homerlbl->hide();
+    }
+
+}

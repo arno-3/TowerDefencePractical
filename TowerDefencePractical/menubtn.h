@@ -16,6 +16,7 @@ signals:
 
 private:
     void mousePressEvent (QMouseEvent *);
+    bool state;
 
     QLabel *outline;
 

@@ -6,18 +6,17 @@ MenuBtn::MenuBtn(QWidget *parent) : QWidget(parent)
 
     outline = new QLabel(this);
     outline->setGeometry(0, 0, width(), height());
-    outline->setStyleSheet("border: 1px solid white;");
+    outline->setStyleSheet("border: 1px solid white; background-color: rgba(0, 0, 0, 0);");
+    outline->setAttribute(Qt::WA_TransparentForMouseEvents);  // Allows the parent to receive the click
+    state = true;
 
 }
 
 void MenuBtn::mousePressEvent(QMouseEvent *e)
 {
-//    if(e->button() == Qt::LeftButton)
-//    {
-//        state = !state;
-//        if (state)
-//             level->setStyleSheet("background-color: blue;");
-//        else
-//             level->setStyleSheet("background-color: cyan;");
-
+    if(e->button() == Qt::LeftButton)
+    {
+        state = !state;
+        emit clicked(state);
+    }
 }

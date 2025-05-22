@@ -4,6 +4,7 @@
 #include <QMainWindow>
 #include <menubtn.h>
 #include <QLabel>
+#include <clickablelabel.h>
 
 class MainWindow : public QMainWindow
 {
@@ -12,6 +13,9 @@ class MainWindow : public QMainWindow
 public:
     MainWindow(QWidget *parent = nullptr);
     ~MainWindow();
+
+signals:
+    void clicked(bool);
 
 private:
     MenuBtn *start;
@@ -23,5 +27,11 @@ private:
     QLabel *onlinelbl;
     QLabel *exitlbl;
     QLabel *homerlbl;
+
+private slots:
+    void onStartClicked(bool);
+    void onOnlineClicked(bool);
+    void onExitClicked(bool);
+    void onHomerClicked(bool);
 };
 #endif // MAINWINDOW_H
