@@ -67,11 +67,6 @@ void MainWindow::onStartClicked(bool state)
 
     if (!state)
     {
-        QSoundEffect *effect = new QSoundEffect(this);
-        effect->setSource(QUrl("qrc:/ClickEffect.wav"));
-        effect->setVolume(0.5); // 0.0 to 1.0
-        effect->play();
-
         //hide all the menu buttons and labels
         start->hide();
         menulbl->hide();
@@ -89,11 +84,6 @@ void MainWindow::onOnlineClicked(bool state)
 {
     if (!state)
     {
-        QSoundEffect *effect = new QSoundEffect(this);
-        effect->setSource(QUrl("qrc:/ClickEffect.wav"));
-        effect->setVolume(0.5); // 0.0 to 1.0
-        effect->play();
-
         //hide all the menu buttons and labels
         start->hide();
         menulbl->hide();
@@ -113,10 +103,7 @@ void MainWindow::onExitClicked(bool state)
 {
     if (!state)
     {
-        QSoundEffect *effect = new QSoundEffect(this);
-        effect->setSource(QUrl("qrc:/ClickEffect.wav"));
-        effect->setVolume(0.5); // 0.0 to 1.0
-        effect->play();
+
 
         QApplication::quit();
     }
@@ -126,10 +113,6 @@ void MainWindow::onHomerClicked(bool state)
 {
     if (!state)
     {
-        QSoundEffect *Clickeffect = new QSoundEffect(this);
-        Clickeffect->setSource(QUrl("qrc:/ClickEffect.wav"));
-        Clickeffect->setVolume(0.5); // 0.0 to 1.0
-        Clickeffect->play();
 
         //hide all the menu buttons and labels
         start->hide();
