@@ -1,18 +1,17 @@
-#ifndef MENUBTN_H
-#define MENUBTN_H
+#ifndef TOWERBTN_H
+#define TOWERBTN_H
 
 #include <QWidget>
 #include <QLabel>
 #include <QMouseEvent>
 
-class MenuBtn : public QWidget
+class TowerBtn : public QWidget
 {
     Q_OBJECT
 public:
-    explicit MenuBtn(QWidget *parent = nullptr);
+    explicit TowerBtn(QWidget *parent = nullptr);
 
 signals:
-    //signal for clicking to be sent
     void clicked(bool);
 
 private:
@@ -23,5 +22,4 @@ private:
 
 };
 
-
-#endif // MENUBTN_H
+#endif // TOWERBTN_H

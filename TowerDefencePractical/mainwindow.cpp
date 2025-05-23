@@ -40,6 +40,7 @@ MainWindow::MainWindow(QWidget *parent)
     homerlbl->move(width()/2-homerlbl->width()/2,556);
 
     //connect(label, &ClickableLabel::clicked, this, &MainWindow::onLabelClicked)
+    //Create all labels for the menu items
     start = new MenuBtn(this);
     start->move(width()/2-start->width()/2,75);
     connect(start, &MenuBtn::clicked, this, &MainWindow::onStartClicked);
@@ -76,6 +77,47 @@ void MainWindow::onStartClicked(bool state)
         exitlbl->hide();
         homer->hide();
         homerlbl->hide();
+
+        //put the picture or label above for clicking purposes
+        bigT = new QLabel(this);
+        bigT->move(50,50);
+        bigT->setText("Big");
+        bigT->setStyleSheet("QLabel { font-size: 15px; color: white; }");
+        bigT->show();
+
+        regT = new QLabel(this);
+        regT->move(150,50);
+        regT->setText("Reg");
+        regT->setStyleSheet("QLabel { font-size: 15px; color: white; }");
+        regT->show();
+
+        wall = new QLabel(this);
+        wall->move(50,150);
+        wall->setText("Wall");
+        wall->setStyleSheet("QLabel { font-size: 15px; color: white; }");
+        wall->show();
+
+        fastT = new QLabel(this);
+        fastT->move(150,150);
+        fastT->setText("Fast");
+        fastT->setStyleSheet("QLabel { font-size: 15px; color: white; }");
+        fastT->show();
+
+        //Spawn tower label blocks
+        bTow = new TowerBtn(this);
+        bTow->show();
+
+        rTow = new TowerBtn(this);
+        rTow->move(100,0);
+        rTow->show();
+
+        wallT = new TowerBtn(this);
+        wallT->move(0,100);
+        wallT->show();
+
+        fTow = new TowerBtn(this);
+        fTow->move(100,100);
+        fTow->show();
     }
 
 }
@@ -103,8 +145,6 @@ void MainWindow::onExitClicked(bool state)
 {
     if (!state)
     {
-
-
         QApplication::quit();
     }
 }

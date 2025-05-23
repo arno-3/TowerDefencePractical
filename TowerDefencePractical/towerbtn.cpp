@@ -1,11 +1,10 @@
-#include "menubtn.h"
+#include "towerbtn.h"
 #include <QSoundEffect>
 
-MenuBtn::MenuBtn(QWidget *parent) : QWidget(parent)
+TowerBtn::TowerBtn(QWidget *parent) : QWidget(parent)
 {
-    setFixedSize(250, 75);
+    setFixedSize(100, 100);
 
-    //Create the button for the menu items
     outline = new QLabel(this);
     outline->setGeometry(0, 0, width(), height());
     outline->setStyleSheet("border: 1px solid white; background-color: rgba(0, 0, 0, 0);");
@@ -14,16 +13,11 @@ MenuBtn::MenuBtn(QWidget *parent) : QWidget(parent)
 
 }
 
-void MenuBtn::mousePressEvent(QMouseEvent *e)
+void TowerBtn::mousePressEvent(QMouseEvent *e)
 {
     if(e->button() == Qt::LeftButton)
     {
         state = !state;
-        //play the click sound effect on every button clicked
-        QSoundEffect *effect = new QSoundEffect(this);
-        effect->setSource(QUrl("qrc:/ClickEffect.wav"));
-        effect->setVolume(0.5); // 0.0 to 1.0
-        effect->play();
         emit clicked(state);
     }
 }

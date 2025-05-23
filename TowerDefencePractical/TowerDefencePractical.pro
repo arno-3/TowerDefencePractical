@@ -11,11 +11,13 @@ CONFIG += c++11
 SOURCES += \
     main.cpp \
     mainwindow.cpp \
-    menubtn.cpp
+    menubtn.cpp \
+    towerbtn.cpp
 
 HEADERS += \
     mainwindow.h \
-    menubtn.h
+    menubtn.h \
+    towerbtn.h
 
 # Default rules for deployment.
 qnx: target.path = /tmp/$${TARGET}/bin
