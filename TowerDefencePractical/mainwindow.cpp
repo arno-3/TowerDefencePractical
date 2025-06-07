@@ -14,13 +14,8 @@ MainWindow::MainWindow(QWidget *parent)
     ///Menu items
     //Menu labels
 
-    //test Arno
     //label->setStyleSheet("QLabel { font-size: 20px; }");
 
-
-    //test
-
-    //test
 
     menulbl = new QLabel(this);
     menulbl->setText("START");
