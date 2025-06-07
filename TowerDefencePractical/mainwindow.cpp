@@ -16,6 +16,8 @@ MainWindow::MainWindow(QWidget *parent)
 
     //Hey Arno, dis nogal cool dat GIT nou werk
 
+    //Tesy
+
     //Menu labels
     //label->setStyleSheet("QLabel { font-size: 20px; }");
 
