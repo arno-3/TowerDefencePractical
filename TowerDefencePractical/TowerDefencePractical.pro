@@ -1,6 +1,6 @@
 QT       += core gui
 
-greaterThan(QT_MAJOR_VERSION, 4): QT += widgets multimedia
+greaterThan(QT_MAJOR_VERSION, 4): QT += widgets
 
 CONFIG += c++11
 
@@ -10,22 +10,12 @@ CONFIG += c++11
 
 SOURCES += \
     main.cpp \
-    mainwindow.cpp \
-    menubtn.cpp \
-    towerbtn.cpp
+    mainwindow.cpp
 
 HEADERS += \
-    mainwindow.h \
-    menubtn.h \
-    towerbtn.h
+    mainwindow.h
 
 # Default rules for deployment.
 qnx: target.path = /tmp/$${TARGET}/bin
 else: unix:!android: target.path = /opt/$${TARGET}/bin
 !isEmpty(target.path): INSTALLS += target
-
-RESOURCES += \
-    Click.qrc \
-    homerSound.qrc \
-    homiepic.qrc \
-    homietransparentpng.qrc
