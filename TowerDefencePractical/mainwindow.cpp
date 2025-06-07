@@ -12,7 +12,7 @@ MainWindow::MainWindow(QWidget *parent)
     setStyleSheet("background-color: black;");
 
     ///Menu items
-
+    // Christian is dik
     //Menu labels
     //label->setStyleSheet("QLabel { font-size: 20px; }");
 
@@ -159,7 +159,7 @@ void MainWindow::onStartClicked(bool state)
 
                 // Center the grid on the screen
                 int xOffset = 600;
-                int yOffset = 100;
+                int yOffset = 150;
 
                 // Position gridBlocks
                 gridVector[i][j]->move(x + xOffset, y + yOffset);
