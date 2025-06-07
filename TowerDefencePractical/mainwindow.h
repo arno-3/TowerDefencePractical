@@ -5,6 +5,7 @@
 #include <menubtn.h>
 #include <QLabel>
 #include <towerbtn.h>
+#include <gridblocks.h>
 
 class MainWindow : public QMainWindow
 {
@@ -30,11 +31,15 @@ private:
     QLabel *homerlbl;
     QLabel *homie;
 
+    QLabel *grass;
+    QLabel *base;
+
     //Tower items
     TowerBtn *bTow; //big expensive tower
     TowerBtn *rTow; //regular tower
     TowerBtn *wallT; //Wall
     TowerBtn *fTow; //shoot fast tower
+    TowerBtn *mTow; //mine
 
 
     //Tower or shop labels
@@ -42,6 +47,9 @@ private:
     QLabel *regT;  //regular tower
     QLabel *wall;  //Wall
     QLabel *fastT; //shoot fast tower
+    QLabel *mine;
+
+    gridBlocks *gridVector[10][10];
 
 
 private slots:

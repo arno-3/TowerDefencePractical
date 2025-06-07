@@ -3,6 +3,7 @@
 #include <QApplication>
 #include <QPixmap>
 #include <QSoundEffect>
+#include <QVector>
 
 MainWindow::MainWindow(QWidget *parent)
     : QMainWindow(parent)
@@ -79,16 +80,27 @@ void MainWindow::onStartClicked(bool state)
         homerlbl->hide();
 
         //put the picture or label above for clicking purposes
+        //Big tower specs
+        QPixmap Btower(":/BigTower.png");
         bigT = new QLabel(this);
-        bigT->move(50,50);
-        bigT->setText("Big");
-        bigT->setStyleSheet("QLabel { font-size: 15px; color: white; }");
+        bigT->move(15,0);
+        int bigTScaledWidth = 100;  // Desired width
+        int bigTScaledHeight = 100; // Desired height
+        QPixmap scaledbTower = Btower.scaled(bigTScaledWidth, bigTScaledHeight, Qt::KeepAspectRatio, Qt::SmoothTransformation);
+        bigT->setFixedSize(bigTScaledWidth, bigTScaledHeight);
+        bigT->setPixmap(scaledbTower);
         bigT->show();
 
+
+        //Regular tower specs
+        QPixmap Rtower(":/RegTower.png");
         regT = new QLabel(this);
-        regT->move(150,50);
-        regT->setText("Reg");
-        regT->setStyleSheet("QLabel { font-size: 15px; color: white; }");
+        regT->move(120,0);
+        int regTScaledWidth = 100;  // Desired width
+        int regTScaledHeight = 100; // Desired height
+        QPixmap scaledrTower = Rtower.scaled(regTScaledWidth, regTScaledHeight, Qt::KeepAspectRatio, Qt::SmoothTransformation);
+        regT->setFixedSize(regTScaledWidth, regTScaledHeight);
+        regT->setPixmap(scaledrTower);
         regT->show();
 
         wall = new QLabel(this);
@@ -97,10 +109,15 @@ void MainWindow::onStartClicked(bool state)
         wall->setStyleSheet("QLabel { font-size: 15px; color: white; }");
         wall->show();
 
+        //Fast tower specs
+        QPixmap Ftower(":/FastTower.png");
         fastT = new QLabel(this);
-        fastT->move(150,150);
-        fastT->setText("Fast");
-        fastT->setStyleSheet("QLabel { font-size: 15px; color: white; }");
+        fastT->move(125,95);
+        int fastTScaledWidth = 100;
+        int fastTScaledHeight = 100;
+        QPixmap scaledfTower = Ftower.scaled(fastTScaledWidth, fastTScaledHeight, Qt::KeepAspectRatio, Qt::SmoothTransformation);
+        fastT->setFixedSize(fastTScaledWidth, fastTScaledHeight);
+        fastT->setPixmap(scaledfTower);
         fastT->show();
 
         //Spawn tower label blocks
@@ -118,6 +135,69 @@ void MainWindow::onStartClicked(bool state)
         fTow = new TowerBtn(this);
         fTow->move(100,100);
         fTow->show();
+
+        mTow = new TowerBtn(this);
+        mTow->move(0,200);
+        mTow->show();
+
+        // Assuming you have a 2D vector for grass labels
+        QVector<QVector<QLabel*>> grassVector(10, QVector<QLabel*>(10));
+
+        for (int i = 0; i < 10; ++i)
+        {
+            for (int j = 0; j < 10; ++j)
+            {
+                gridVector[i][j] = new gridBlocks(this);
+
+                // Isometric transformation
+                int tileWidth = gridVector[i][j]->width();
+                int tileHeight = gridVector[i][j]->height();
+
+                // Isometric coordinates
+                int x = (j - i) * tileWidth / 2;
+                int y = (i + j) * (tileHeight+9) / 4;
+
+                // Center the grid on the screen
+                int xOffset = 600;
+                int yOffset = 100;
+
+                // Position gridBlocks
+                gridVector[i][j]->move(x + xOffset, y + yOffset);
+                gridVector[i][j]->setAttribute(Qt::WA_TranslucentBackground); // Ensure transparency
+                gridVector[i][j]->setStyleSheet("background: transparent;"); // Remove any back
+                gridVector[i][j]->show();
+
+                // Create and position grass label
+                QPixmap p(":/GrassTile.png");
+                grassVector[i][j] = new QLabel(this);
+
+                int scaledWidth = 500;  // Desired width
+                int scaledHeight = 125; // Desired height
+
+                QPixmap scaledPixmap = p.scaled(scaledWidth, scaledHeight, Qt::KeepAspectRatio, Qt::SmoothTransformation);
+
+                grassVector[i][j]->setFixedSize(scaledWidth, scaledHeight);
+
+                grassVector[i][j]->setPixmap(scaledPixmap);
+                grassVector[i][j]->setAttribute(Qt::WA_TranslucentBackground); // Ensure transparency
+                grassVector[i][j]->setStyleSheet("background: transparent;"); // Remove any background
+                grassVector[i][j]->move(x + xOffset, y + yOffset);
+                grassVector[i][j]->show();
+            }
+        }
+
+        QPixmap b(":/Base.png");
+
+        int BaseScaledWidth = 125;  // Desired width
+        int BaseScaledHeight = 100; // Desired height
+
+        QPixmap scaledBase = b.scaled(BaseScaledWidth, BaseScaledHeight, Qt::KeepAspectRatio, Qt::SmoothTransformation);
+        base = new QLabel(this);
+        base->setFixedSize(BaseScaledWidth, BaseScaledHeight);
+        base->setAttribute(Qt::WA_TranslucentBackground);
+        base->move(gridVector[9][9]->x(), gridVector[9][9]->y());
+        base->setPixmap(scaledBase);
+        base->show();
     }
 
 }
