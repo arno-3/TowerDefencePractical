@@ -12,7 +12,10 @@ MainWindow::MainWindow(QWidget *parent)
     setStyleSheet("background-color: black;");
 
     ///Menu items
-    // Christian is dik
+    // Werk dit??
+
+    //Hey Arno, dis nogal cool dat GIT nou werk
+
     //Menu labels
     //label->setStyleSheet("QLabel { font-size: 20px; }");
 
