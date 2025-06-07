@@ -18,6 +18,10 @@ MainWindow::MainWindow(QWidget *parent)
     //label->setStyleSheet("QLabel { font-size: 20px; }");
 
 
+    //test
+
+    //test
+
     menulbl = new QLabel(this);
     menulbl->setText("START");
     menulbl->setStyleSheet("QLabel { font-size: 30px; color: white; }");
