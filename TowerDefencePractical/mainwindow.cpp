@@ -13,6 +13,8 @@ MainWindow::MainWindow(QWidget *parent)
 
     ///Menu items
     //Menu labels
+
+    //test Arno
     //label->setStyleSheet("QLabel { font-size: 20px; }");
 
 
