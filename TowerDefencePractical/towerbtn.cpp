@@ -10,7 +10,7 @@ TowerBtn::TowerBtn(QWidget *parent) : QWidget(parent)
     outline->setStyleSheet("border: 1px solid white; background-color: rgba(0, 0, 0, 0);");
     outline->setAttribute(Qt::WA_TransparentForMouseEvents);  // Allows the parent to receive the click
     state = true;
-
+    //test
 }
 
 void TowerBtn::mousePressEvent(QMouseEvent *e)
