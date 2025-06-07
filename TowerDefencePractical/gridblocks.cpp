@@ -8,4 +8,6 @@ gridBlocks::gridBlocks(QWidget *parent) : QWidget(parent)
     mapGrid->setGeometry(0,0,width(),height());
     mapGrid->setStyleSheet(" rgba(0, 0, 0, 0);");
 
+    //oefening
+
 }
