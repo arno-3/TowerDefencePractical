@@ -1,0 +1,5 @@
+<RCC>
+    <qresource prefix="/">
+        <file>RegTower.png</file>
+    </qresource>
+</RCC>
