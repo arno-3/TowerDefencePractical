@@ -4,8 +4,9 @@
 #include <QMainWindow>
 #include <QObject>
 #include <QLabel>
-#include <towerbtn.h>
-#include <gridblocks.h>
+#include <QVector>
+#include "towerbtn.h"
+#include "gridblocks.h"
 
 class gamewindow : public QMainWindow
 {
@@ -37,12 +38,22 @@ private:
     QLabel *wall;  //Wall
     QLabel *fastT; //shoot fast tower
     QLabel *mine; // landmine
+    int selectedTowerType;
+
+    QVector<TowerBtn*> towers; // Store placed towers
 
     gridBlocks *gridVector[10][10];
 
+    int gold;
+    QLabel *Gold;
+    const int towerCosts[4] = {20, 30, 25, 15}; // Costs for tower types 0-3
+
+private slots:
     void createMap();
     void convertIsometric();
     void onExit(QMainWindow*);
+    void onTowerButtonClicked(int towerType);
+    void onGridBlockClicked(int row, int col);
 
 };
 

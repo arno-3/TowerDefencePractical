@@ -39,4 +39,5 @@ RESOURCES += \
     Regtower.qrc \
     homerSound.qrc \
     homiepic.qrc \
-    homietransparentpng.qrc
+    homietransparentpng.qrc \
+    minePic.qrc
