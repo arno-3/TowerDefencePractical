@@ -112,6 +112,12 @@ void menu::onHomerClicked(bool state)
     {
         if(homieCount == 0)
         {
+
+        start->hide();
+        online->hide();
+        exit->hide();
+        homer->hide();
+
         //Homer Easter Egg
         QTimer *timer = new QTimer(this);
         connect(timer,&QTimer::timeout,this,&menu::onTimerTick);
@@ -148,5 +154,9 @@ void menu::onTimerTick()
         homieCount = 0;
         QTimer *t = (QTimer*)QObject::sender();
         t->deleteLater();
+        start->show();
+        online->show();
+        exit->show();
+        homer->show();
     }
 }
