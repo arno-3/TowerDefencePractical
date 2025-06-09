@@ -9,7 +9,7 @@ class TowerBtn : public QWidget
 {
     Q_OBJECT
 public:
-    explicit TowerBtn(QWidget *parent = nullptr);
+    explicit TowerBtn(QWidget *parent = nullptr, int towerSelect = 0);
 
 signals:
     void clicked(bool);

@@ -4,12 +4,14 @@
 #include <QWidget>
 #include <QLabel>
 #include <QMouseEvent>
+#include <QString>
 
 class MenuBtn : public QWidget
 {
     Q_OBJECT
 public:
-    explicit MenuBtn(QWidget *parent = nullptr);
+    explicit MenuBtn(QWidget *parent = nullptr, QString text = "Menu Item", int style = 0);
+    void setState(bool);
 
 signals:
     //signal for clicking to be sent

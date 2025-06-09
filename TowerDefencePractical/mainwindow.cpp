@@ -79,6 +79,11 @@ void MainWindow::onStartClicked(bool state)
         homer->hide();
         homerlbl->hide();
 
+
+        //TowerBtn specifications:
+        //image as background
+        //scaledImage ~ to fit for desired grid
+
         //put the picture or label above for clicking purposes
         //Big tower specs
         QPixmap Btower(":/BigTower.png");
