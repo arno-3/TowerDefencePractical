@@ -84,4 +84,18 @@ void gamewindow::convertIsometric()
         }
     }
 
-}
+    QPixmap b(":/Base.png");
+
+    int BaseScaledWidth = 125;  // Desired width
+    int BaseScaledHeight = 100; // Desired height
+
+    QPixmap scaledBase = b.scaled(BaseScaledWidth, BaseScaledHeight, Qt::KeepAspectRatio, Qt::SmoothTransformation);
+    base = new QLabel(this);
+    base->setFixedSize(BaseScaledWidth, BaseScaledHeight);
+    base->setAttribute(Qt::WA_TranslucentBackground);
+    base->move(gridVector[9][9]->x(), gridVector[9][9]->y());
+    base->setPixmap(scaledBase);
+    base->show();
+ }
+
+
