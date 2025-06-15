@@ -11,6 +11,7 @@ class gridBlocks : public QWidget
 public:
     explicit gridBlocks(QWidget *parent = nullptr);
     void setGridPosition(int row, int col);
+//    void operator+();
 
 signals:
     void gridClicked(int row, int col);

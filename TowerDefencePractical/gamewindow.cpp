@@ -1,5 +1,8 @@
 #include "gamewindow.h"
 #include <QDebug>
+//#include <enemyhandler.h>
+#include <QtConcurrent/QtConcurrentRun>
+
 
 gamewindow::gamewindow(QWidget *parent, QMainWindow *menu) : QMainWindow(parent), selectedTowerType(-1)
 {
@@ -41,8 +44,23 @@ gamewindow::gamewindow(QWidget *parent, QMainWindow *menu) : QMainWindow(parent)
     Gold->move(1000, 0);
     Gold->show();
 
-    convertIsometric();
+    pHealth = new QProgressBar(this);
+    pHealth->move(600,50);
+    pHealth->setFixedSize(400,25);
+    pHealth->setTextVisible(false);
+    pHealth->setOrientation(Qt::Horizontal);
+    pHealth->show();
+    pHealth->setValue(base_specs.health);
 
+
+    enemyH = new EnemyHandler(this,this);
+    convertIsometric();
+//    QtConcurrent::run([this]{enemyH->run();});
+//    enemyH->
+    enemyH->run();
+
+    //connect(this,&gamewindow::placedBlock,enemyH,&EnemyHandler::updatePaths);
+    connect(enemyH,&EnemyHandler::crash,this,&gamewindow::onCrash);
 }
 
 void gamewindow::onExit(QMainWindow *m)
@@ -86,8 +104,10 @@ void gamewindow::convertIsometric()
             // Position gridBlocks
             gridVector[i][j]->move(x + xOffset, y + yOffset);
             gridVector[i][j]->setAttribute(Qt::WA_TranslucentBackground); // Ensure transparency
-            gridVector[i][j]->setStyleSheet("background: transparent;"); // Remove any back
+            gridVector[i][j]->setStyleSheet("background: rgba(0,0,0,0); border-radius:50px;"); // Remove any back
             gridVector[i][j]->show();
+
+            enemyH->setGrid(gridVector[i][j]->x(),gridVector[i][j]->y(),i,j);
 
             // Create and position grass label
             QPixmap p(":/GrassTile.png");
@@ -102,11 +122,15 @@ void gamewindow::convertIsometric()
 
             grassVector[i][j]->setPixmap(scaledPixmap);
             grassVector[i][j]->setAttribute(Qt::WA_TranslucentBackground); // Ensure transparency
-            grassVector[i][j]->setStyleSheet("background: transparent;"); // Remove any background
+            grassVector[i][j]->setStyleSheet("background: rgba(0,0,0,0);"); // Remove any background
             grassVector[i][j]->setAttribute(Qt::WA_TransparentForMouseEvents); // Ignore mouse events
             grassVector[i][j]->move(x + xOffset, y + yOffset);
             gridVector[i][j]->raise(); // Ensure gridBlocks is above grass
             grassVector[i][j]->show();
+
+            // Add grid to the vectorgrid in EnemyHAndler
+
+            //enemyH->grid
         }
     }
 
@@ -123,6 +147,8 @@ void gamewindow::convertIsometric()
     base->setPixmap(scaledBase);
     base->setAttribute(Qt::WA_TransparentForMouseEvents); // Ignore mouse events
     base->show();
+
+
  }
 
 void gamewindow::onTowerButtonClicked(int towerType)
@@ -140,6 +166,11 @@ void gamewindow::onGridBlockClicked(int row, int col)
             qDebug() << "Cannot place tower on base";
             return;
         }
+        if(row == 0 || col == 0)
+        {
+            qDebug() << "Cannot place tower out of range";
+            return;
+        }
 
         // Check if a tower already exists at this position
         for (TowerBtn* tower : towers)
@@ -152,8 +183,8 @@ void gamewindow::onGridBlockClicked(int row, int col)
 
         // Check if player has enough gold
         int cost = towerCosts[selectedTowerType];
-        if (gold < cost) {
-            qDebug() << "Not enough gold to place tower. Required:" << cost << "Available:" << gold;
+        if (base_specs.gold < cost) {
+            qDebug() << "Not enough gold to place tower. Required:" << cost << "Available:" << base_specs.gold;
             return;
         }
 
@@ -173,13 +204,20 @@ void gamewindow::onGridBlockClicked(int row, int col)
 
         newTower->raise();
         newTower->show();
+
         towers.push_back(newTower);
 
         // Deduct gold and update display
-        gold -= cost;
-        Gold->setText("Gold: " + QString::number(gold));
-
+        base_specs.gold -= cost;
+        Gold->setText("Gold: " + QString::number(base_specs.gold));
+        enemyH->updatePaths(row,col);
         qDebug() << "Tower placed at row:" << row << "col:" << col << "type:" << selectedTowerType << "cost:" << cost;
         selectedTowerType = -1;
     }
+}
+
+void gamewindow::onCrash(int damage)
+{
+    base_specs.health -= damage;
+    pHealth->setValue(base_specs.health);
 }

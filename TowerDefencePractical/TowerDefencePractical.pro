@@ -9,8 +9,11 @@ CONFIG += c++11
 #DEFINES += QT_DISABLE_DEPRECATED_BEFORE=0x060000    # disables all the APIs deprecated before Qt 6.0.0
 
 SOURCES += \
+    enemies.cpp \
+    enemyhandler.cpp \
     gamewindow.cpp \
     gridblocks.cpp \
+    just_to_test_qt_framework_inheritance.cpp \
     main.cpp \
     mainwindow.cpp \
     menu.cpp \
@@ -18,8 +21,11 @@ SOURCES += \
     towerbtn.cpp
 
 HEADERS += \
+    enemies.h \
+    enemyhandler.h \
     gamewindow.h \
     gridblocks.h \
+    just_to_test_qt_framework_inheritance.h \
     mainwindow.h \
     menu.h \
     menubtn.h \
@@ -32,11 +38,14 @@ else: unix:!android: target.path = /opt/$${TARGET}/bin
 
 RESOURCES += \
     Basephoto.qrc \
+    BigAlien.qrc \
     Bigtower.qrc \
     Click.qrc \
     Fasttower.qrc \
     Grass.qrc \
     Regtower.qrc \
+    SmallAlien.qrc \
+    Spaceship.qrc \
     homerSound.qrc \
     homiepic.qrc \
     homietransparentpng.qrc \

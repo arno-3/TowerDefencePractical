@@ -7,15 +7,21 @@
 #include <QVector>
 #include "towerbtn.h"
 #include "gridblocks.h"
+#include <enemyhandler.h>
+#include <QProgressBar>
 
 class gamewindow : public QMainWindow
 {
     Q_OBJECT
+
+    struct bBase
+    {
+        int health = 100;
+        int gold = 100;
+    };
+
 public:
     explicit gamewindow(QWidget *parent = nullptr,QMainWindow *menu = nullptr);
-
-
-signals:
 
 
 private:
@@ -23,6 +29,7 @@ private:
     QLabel *base;
 
     QMainWindow Menu;
+    EnemyHandler *enemyH;
 
     //Tower items
     TowerBtn *BigT; //big expensive tower
@@ -45,8 +52,13 @@ private:
     gridBlocks *gridVector[10][10];
 
     int gold;
+    bBase base_specs;
     QLabel *Gold;
+    QProgressBar *pHealth;
     const int towerCosts[4] = {20, 30, 25, 15}; // Costs for tower types 0-3
+
+
+
 
 private slots:
     void createMap();
@@ -54,6 +66,7 @@ private slots:
     void onExit(QMainWindow*);
     void onTowerButtonClicked(int towerType);
     void onGridBlockClicked(int row, int col);
+    void onCrash(int damage);
 
 };
 
