@@ -14,6 +14,7 @@ EnemyHandler::EnemyHandler(QObject *parent, QMainWindow *p) : QObject(parent)
         {
             grid[i][j] = new QPoint(i,j);
             flowChart[i][j] = new QPoint(i,j);
+            mapChart[i][j] = 0;//nothing there
         }
     }
     setPaths();
@@ -62,12 +63,14 @@ void EnemyHandler::run()
 
 void EnemyHandler::createWaves()
 {
-    int max_wave_size = wave*QRandomGenerator64::global()->bounded(1,5);
-    int numSmalls = QRandomGenerator64::global()->bounded(1,2*wave);
+    int max_wave_size = wave*QRandomGenerator64::global()->bounded(1,10);
+    int numSmalls = QRandomGenerator64::global()->bounded(0,2*wave);
     int numBiggies, numSpaceships = 0;
+    ennemies.clear();
 
     if((max_wave_size-numSmalls)>0)
-        numBiggies = QRandomGenerator64::global()->bounded(1,max_wave_size-numSmalls);
+        numBiggies = QRandomGenerator64::global()->bounded(0,max_wave_size-numSmalls);
+
 //    if((max_wave_size-numSmalls-numBiggies)>0)
 //        numSpaceships = (wave>=3)?(0):(QRandomGenerator64::global()->bounded(1,max_wave_size-numSmalls-numBiggies));
 
@@ -79,48 +82,58 @@ void EnemyHandler::createWaves()
             point->setX(QRandomGenerator64::global()->bounded(1,8));
         else
             point->setY(QRandomGenerator64::global()->bounded(1,8));
-        enemies *e = new enemies(W,0,point,getX(point->x(),point->y()),getY(point->x(),point->y()));
+        enemies *e = new enemies(W,0,point,getX(*point),getY(*point));
+        e->show();
+        e->raise();
         ennemies.append(e);
         point->~QPoint();
     }
     if(numBiggies>0)
     {
         for(int i = 0;i<numBiggies;++i)
-    {
-        int R_or_C = QRandomGenerator64::global()->bounded(1,10)%2;
-        QPoint *point = new QPoint(0,0);
-        if(R_or_C)
-            point->setX(QRandomGenerator64::global()->bounded(1,8));
-        else
-            point->setY(QRandomGenerator64::global()->bounded(1,8));
-        enemies *e = new enemies(W,1,point,getX(point->x(),point->y()),getY(point->x(),point->y()));
-        ennemies.append(e);
-        point->~QPoint();
+        {
+            int R_or_C = QRandomGenerator64::global()->bounded(1,10)%2;
+            QPoint *point = new QPoint(0,0);
+            if(R_or_C)
+                point->setX(QRandomGenerator64::global()->bounded(1,8));
+            else
+                point->setY(QRandomGenerator64::global()->bounded(1,8));
+            enemies *e = new enemies(W,1,point,getX(*point),getY(*point));
+            e->show();
+            e->raise();
+            ennemies.append(e);
+            point->~QPoint();
+        }
     }
+
+    if(numSpaceships>0)
+    {
+        for(int i = 0;i<numSpaceships;++i)
+        {
+            int R_or_C = QRandomGenerator64::global()->bounded(1,10)%2;
+            QPoint *point = new QPoint(0,0);
+            if(R_or_C)
+                point->setX(QRandomGenerator64::global()->bounded(0,9));
+            else
+                point->setY(QRandomGenerator64::global()->bounded(0,9));
+            enemies *e = new enemies(W,2,point,getX(*point),getY(*point));
+            e->show();
+            e->raise();
+            ennemies.append(e);
+            point->~QPoint();
+        }
     }
     waveStarted = true;
-//    for(int i = 0;i<numSpaceships;++i)
-//    {
-//        int R_or_C = QRandomGenerator64::global()->bounded(1,10)%2;
-//        QPoint *point = new QPoint(0,0);
-//        if(R_or_C)
-//            point->setX(QRandomGenerator64::global()->bounded(1,8));
-//        else
-//            point->setY(QRandomGenerator64::global()->bounded(1,8));
-//        enemies *e = new enemies(W,2,point,getX(point->x(),point->y()),getY(point->x(),point->y()));
-//        ennemies.append(e);
-//        point->~QPoint();
-//    }
 }
 
-int EnemyHandler::getX(int x, int y)
+int EnemyHandler::getX(QPoint p)
 {
-    return (int)(grid[x][y]->x()+10);
+    return (int)(grid[p.x()][p.y()]->x()+10);
 }
 
-int EnemyHandler::getY(int x, int y)
+int EnemyHandler::getY(QPoint p)
 {
-    return (int)(grid[x][y]->y()-20);
+    return (int)(grid[p.x()][p.y()]->y()-20);
 }
 
 void EnemyHandler::runGame()
@@ -136,13 +149,13 @@ void EnemyHandler::runGame()
         {
             QPoint pos = ennemies[e]->getPos();
             QPoint next = *flowChart[pos.x()][pos.y()];
-            ennemies[e]->moveTo(next, getX(next.x(),next.y()),getY(next.x(),next.y()));
+            ennemies[e]->moveTo(next, getX(next),getY(next));
             pos.~QPoint();
             next.~QPoint();
             qDebug()<<"Tick: "<<tick<<endl;
             ennemies[e]->raise();
 
-            if(pos.x() == 9 ||pos.y()== 9)
+            if(((pos - QPoint(9,8)) == QPoint(0,0))||(pos  - QPoint(8,9) == QPoint(0,0)))
             {
 //                ennemies[e]->glow();
                 qDebug() << "CRASH and Burn!!!" << endl;
@@ -150,7 +163,8 @@ void EnemyHandler::runGame()
                 emit crash(ennemies[e]->properties.damage);
                 ennemies[e]->deleteLater();
                 ennemies.removeAt(e);
-
+//                ennemies.resize(enCount-1);
+                QThread::msleep(50);
             }
         }
 
@@ -170,33 +184,88 @@ void EnemyHandler::runGame()
 
 void EnemyHandler::updatePaths(int r, int c)
 {
-    if(flowChart[r-1][c]->x() == r && flowChart[r-1][c]->y() == c)
+    int value = mapChart[r][c];
+    // Generic update (done)
+    // Is bottom-right? || Has bottom-right? (done)
+    // Top of Hull? || Left of Hull? || Bottom of Hull? (not done)
+    // Bottom row? || Bottom column? (not done)
+
+    bool bottom_row = (r==9)?true:false;
+    bool bottom_col = (c==9)?true:false;
+
+    bool isBottomRight = false;
+    bool hasBottomRight = false;
+    bool hasTopTop = false;
+    bool isTopTop = false;
+
+    // Generic update, see that r>0 && c>0
+    if(r>0 && c>0)
     {
-        if(r!=9)
+        //Top cell
+        flowChart[r][c-1]->setX(r+1);
+        flowChart[r][c-1]->setY(c-1);
+
+        //Right cell
+        flowChart[r-1][c]->setX(r-1);
+        flowChart[r-1][c]->setY(c+1);
+    }
+
+    if(mapChart[r+1][c-1] == -1)// Is Bottom-Right
+    {
+        isBottomRight = true;
+
+        if(!bottom_col)
         {
-            flowChart[r-1][c]->setX(r-1);
-            flowChart[r-1][c]->setY(c+1);
+            flowChart[r][c-2]->setX(r+1); flowChart[r][c-2]->setY(c-2);// Top-Top remapping
+            flowChart[r-1][c-1]->setX(r-1); flowChart[r-1][c-1]->setY(c+1);// Top-Right remapping
+            flowChart[r][c-1]->setX(r); flowChart[r][c-1]->setY(c-2);// Top remapping (safety)
+            flowChart[r-1][c]->setX(r); flowChart[r-1][c]->setY(c+1);//Right remapping
         }
-        else if(r==9)
+        else
         {
-            flowChart[r-1][c]->setX(r-1);
-            flowChart[r-1][c]->setY(c+1);
+            flowChart[r][c-2]->setX(r+1); flowChart[r][c-2]->setY(c-2);// Top-Top remapping
+            flowChart[r-1][c-1]->setX(r); flowChart[r-1][c-1]->setY(c-1);// Top-Right remapping
+            flowChart[r][c-1]->setX(r); flowChart[r][c-1]->setY(c-2);// Top remapping (safety)
+            flowChart[r-1][c]->setX(r); flowChart[r-1][c]->setY(c-1);//Right remapping
         }
     }
-    //L++;
-    if(flowChart[r][c-1]->x() == r && flowChart[r][c-1]->y() == c)
+    else if(mapChart[r-1][c+1] == -1)//Has Bottom-Right
     {
-        if(c!=9)
+        hasBottomRight = true;
+
+        if(!bottom_row)
         {
-            flowChart[r][c-1]->setY(c-1);
-            flowChart[r][c-1]->setX(r+1);
+            flowChart[r-1][c-1]->setX(r); flowChart[r-1][c-1]->setY(c-1);// Top-Top remapping (r-1)(c-1)
+            flowChart[r-2][c]->setX(r-2); flowChart[r-2][c]->setY(c+1);// Top-Right remapping
+            flowChart[r-1][c]->setX(r); flowChart[r-1][c]->setY(c-1);// Top remapping (safety)
+//            flowChart[r-1][c]->setX(r); flowChart[r-1][c]->setY(c+1);//Right remapping
         }
-        else if(c==9)
+        else
         {
-            flowChart[r][c-1]->setY(c-1);
-            flowChart[r][c-1]->setX(r-1);
+            flowChart[r][c-1]->setX(r-1); flowChart[r][c-1]->setY(c-1);// Top-Top remapping (r-1)(c-1)
+            flowChart[r-1][c-1]->setX(r-1); flowChart[r-1][c-1]->setY(c);// Top-Right remapping
+            flowChart[r-1][c]->setX(r-2); flowChart[r-1][c]->setY(c);// Top remapping (safety)
+            flowChart[r-2][c]->setX(r-2); flowChart[r-2][c]->setY(c+1);//This-Top remapping
         }
     }
+
+    if((mapChart[r+1][c+1]+mapChart[r][c+2]) == -2)// Is Top of Hull
+    {
+        flowChart[r][c+1]->setX(r-1); flowChart[r][c+1]->setY(c+1); // Middle Cell || Hull
+        flowChart[r-1][c+1]->setX(r-1); flowChart[r-1][c+1]->setY(c+2);//Next to Hull
+    }
+    else if((mapChart[r-1][c-1]+mapChart[r-1][c+1]) == -2)//Is Left of Hull
+    {
+        flowChart[r-1][c]->setX(r-2); flowChart[r-1][c]->setY(c); // Middle Cell || Hull
+        flowChart[r-2][c]->setX(r-2); flowChart[r-2][c]->setY(c+1);//Next to Hull
+    }
+    else if((mapChart[r+1][c-1]+mapChart[r][c-2]) == -2) //Is Bottom of Hull
+    {
+        flowChart[r][c-1]->setX(r-1); flowChart[r][c-1]->setY(c-1); // Middle Cell || Hull
+        flowChart[r-1][c-1]->setX(r-1); flowChart[r-1][c-1]->setY(c);//Next to Hull
+    }
+
+
     qDebug()<<"PLACEMENT!!!"<<endl;
 }
 
@@ -217,4 +286,10 @@ void EnemyHandler::setPaths()
         }
     }
 //    connect(,&gamewindow::placedBlock,this,&EnemyHandler::updatePaths);
+}
+
+
+void EnemyHandler::setCell(int val, int row, int col)
+{
+    mapChart[row][col] = val;
 }

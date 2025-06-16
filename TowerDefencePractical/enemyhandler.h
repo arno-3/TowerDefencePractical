@@ -26,6 +26,7 @@ public:
     void setGrid(int x, int y, int i, int j);
     void run();
     void updatePaths(int r, int c);
+    void setCell(int val, int row, int col);
 
 signals:
     void crash(int damage);
@@ -44,10 +45,10 @@ private:
 
     double tick=0;
     int wave = 0;
-    int getX(int x, int y);
-    int getY(int x, int y);
+    int getX(QPoint p);
+    int getY(QPoint p);
     QPoint *flowChart[10][10];//contains the coordinates in grid space
-
+    int mapChart[10][10];
     void createWaves();
     bool waveStarted = false;
 };

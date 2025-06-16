@@ -24,13 +24,13 @@ enemies::enemies(QWidget *parent, int enemyType, QPoint *spawnPos, int x, int y)
         break;
     case 1://Big
         properties.damage = 25;//percentage
-        properties.speed = 2000;
+        properties.speed = 1500;
         properties.type = 1;//store type
         outline->setStyleSheet("image: url(:/BigAlien.png); background:rgba(0,0,0,0);");
         break;
     case 2://Spaceship
         properties.damage = 30;//percentage
-        properties.speed = 5000;
+        properties.speed = 2000;
         properties.type = 2;//store type
         outline->setStyleSheet("image: url(:/Spaceship.png);");
         break;
@@ -138,8 +138,8 @@ void enemies::glideTick()
     ++glideT;
 
   // move(x()+dShiftX,y()+dShiftY);
-    qDebug() << properties.type <<"|"<<abs(x()-tX)<<":"<<abs(y()-tY)<<endl;
-    if(glideMax>glideT)
+    qDebug() << properties.type <<"|"<<abs(x()-tX)<<":"<<(y()-tY)<<endl;
+    if(glideMax != glideT)
     {
         int cX = qRound(glideT*properties.dX);
         int cY = qRound(glideT*properties.dY);
@@ -178,6 +178,7 @@ void enemies::glide(int x, int y)
 
     glideMax =tickpermovement;
     glideT = 0;
+    qDebug() <<"|| "<<glideMax;
 
     t = new QTimer();
     t->setInterval(tickInterval);
@@ -193,7 +194,7 @@ void enemies::start()
     double qr = 1.0f;
     qDebug()<<"SPAWNING |"<<tick <<endl;
 
-    if(tick<=300)
+    if(tick<=200)
     {
         if(tick<=100)
         {
@@ -204,7 +205,7 @@ void enemies::start()
             qr = (tick-100)/100;
 
         }
-        else if(tick>300)
+        else if(tick>200)
         {
             tick = 0;
             qr = 1.0f;

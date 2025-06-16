@@ -211,6 +211,7 @@ void gamewindow::onGridBlockClicked(int row, int col)
         base_specs.gold -= cost;
         Gold->setText("Gold: " + QString::number(base_specs.gold));
         enemyH->updatePaths(row,col);
+        enemyH->setCell(-1,row,col);
         qDebug() << "Tower placed at row:" << row << "col:" << col << "type:" << selectedTowerType << "cost:" << cost;
         selectedTowerType = -1;
     }
