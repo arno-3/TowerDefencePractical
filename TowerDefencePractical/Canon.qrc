@@ -1,0 +1,5 @@
+<RCC>
+    <qresource prefix="/">
+        <file>cannon.wav</file>
+    </qresource>
+</RCC>

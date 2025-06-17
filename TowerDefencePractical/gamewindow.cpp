@@ -2,12 +2,17 @@
 #include <QDebug>
 //#include <enemyhandler.h>
 #include <QtConcurrent/QtConcurrentRun>
+#include <QSoundEffect>
 
 
 gamewindow::gamewindow(QWidget *parent, QMainWindow *menu) : QMainWindow(parent), selectedTowerType(-1)
 {
     //Minimize MenuWindow
     menu->setVisible(false);
+
+    gameTimer = new QTimer(this);
+    connect(gameTimer, &QTimer::timeout, this, &gamewindow::updateGame);
+    gameTimer->start(16); // ~60 FPS (16ms per frame)
 
 
     //Create background and initial state of GameWindow
@@ -45,12 +50,19 @@ gamewindow::gamewindow(QWidget *parent, QMainWindow *menu) : QMainWindow(parent)
     Gold->show();
 
     pHealth = new QProgressBar(this);
-    pHealth->move(600,50);
+    pHealth->move(450,50);
     pHealth->setFixedSize(400,25);
     pHealth->setTextVisible(false);
     pHealth->setOrientation(Qt::Horizontal);
     pHealth->show();
     pHealth->setValue(base_specs.health);
+
+    bHealth = new QLabel(this);
+    bHealth->move(450,25);
+    bHealth->setFixedSize(400,25);
+    bHealth->setText("BASE HEALTH: " + QString::number(pHealth->value()));
+    bHealth->setFont(QFont("Comic Sans MS", 15));
+
 
 
     enemyH = new EnemyHandler(this,this);
@@ -183,7 +195,7 @@ void gamewindow::onGridBlockClicked(int row, int col)
 
         // Check if player has enough gold
         int cost = towerCosts[selectedTowerType];
-        if (base_specs.gold < cost) {
+        if (gold < cost) {
             qDebug() << "Not enough gold to place tower. Required:" << cost << "Available:" << base_specs.gold;
             return;
         }
@@ -208,8 +220,8 @@ void gamewindow::onGridBlockClicked(int row, int col)
         towers.push_back(newTower);
 
         // Deduct gold and update display
-        base_specs.gold -= cost;
-        Gold->setText("Gold: " + QString::number(base_specs.gold));
+        gold -= cost;
+        Gold->setText("Gold: " + QString::number(gold));
         enemyH->updatePaths(row,col);
         enemyH->setCell(-1,row,col);
         qDebug() << "Tower placed at row:" << row << "col:" << col << "type:" << selectedTowerType << "cost:" << cost;
@@ -221,4 +233,127 @@ void gamewindow::onCrash(int damage)
 {
     base_specs.health -= damage;
     pHealth->setValue(base_specs.health);
+    bHealth->setText("BASE HEALTH: " + QString::number(pHealth->value()));
+
+    if (base_specs.health <= 0)
+    {
+         bHealth->setText("BASE HEALTH: 0");
+
+         QSoundEffect *effect = new QSoundEffect(this);
+         effect->setSource(QUrl("qrc:/GameOver.wav"));
+         effect->setVolume(1); // 0.0 to 1.0 in percentages
+         effect->play();
+    }
+}
+
+void gamewindow::updateGame() {
+    for (TowerBtn* tower : towers) {
+        tower->updateCooldown(16);
+        if (tower->canAttack()) {
+            int row = tower->property("row").toInt();
+            int col = tower->property("col").toInt();
+            int adjacent[8][2] = {
+                {row-1, col},
+                {row+1, col},
+                {row, col-1},
+                {row, col+1},
+                {row-1, col-1},
+                {row-1, col+1},
+                {row+1, col-1},
+                {row+1, col+1}
+            };
+            bool attacked = false;
+            if (tower->getTowerType() == 3) { // Mine Tower: Damage all enemies in adjacent cells
+                for (const auto& pos : adjacent) {
+                    int r = pos[0];
+                    int c = pos[1];
+                    if (r >= 0 && r < 10 && c >= 0 && c < 10) {
+                        for (enemies* enemy : enemyH->getEnemies()) {
+                            QPoint enemyPos = enemy->getPos();
+                            if (enemyPos.x() == r && enemyPos.y() == c) {
+                                enemyH->damageEnemy(enemy, tower->getDamage());
+                                if (enemy->properties.health <= 0) {
+                                    addGold(enemy->properties.goldReward); // Reward gold
+                                    qDebug() << "Enemy killed, added" << enemy->properties.goldReward << "gold";
+
+                                    QSoundEffect *effect = new QSoundEffect(this);
+                                    effect->setSource(QUrl("qrc:/death.wav"));
+                                    effect->setVolume(0.2); // 0.0 to 1.0 in percentages
+                                    effect->play();
+                                }
+                                attacked = true;
+                            }
+                        }
+                    }
+                }
+                if (attacked) {
+                    towers.removeOne(tower);
+                    tower->deleteLater();
+                    tower->hide();
+                    QSoundEffect *effect = new QSoundEffect(this);
+                    effect->setSource(QUrl("qrc:/explosion.wav"));
+                    effect->setVolume(0.5); // 0.0 to 1.0
+                    effect->play();
+                }
+            } else { // Other towers: Attack one enemy
+                for (const auto& pos : adjacent) {
+                    int r = pos[0];
+                    int c = pos[1];
+                    if (r >= 0 && r < 10 && c >= 0 && c < 10) {
+                        for (enemies* enemy : enemyH->getEnemies()) {
+                            QPoint enemyPos = enemy->getPos();
+                            if (enemyPos.x() == r && enemyPos.y() == c) {
+                                enemyH->damageEnemy(enemy, tower->getDamage());
+                                if (tower->getTowerType() == 0) //regular tower
+                                {
+                                    QSoundEffect *canoneffect = new QSoundEffect(this);
+                                    canoneffect->setSource(QUrl("qrc:/cannon.wav"));
+                                    canoneffect->setVolume(0.5); // 0.0 to 1.0
+                                    canoneffect->play();
+                                }
+                                else if (tower->getTowerType() == 1)//big tower
+                                {
+                                    QSoundEffect *canoneffect = new QSoundEffect(this);
+                                    canoneffect->setSource(QUrl("qrc:/BigTowerShot.wav"));
+                                    canoneffect->setVolume(0.3); // 0.0 to 1.0
+                                    canoneffect->play();
+
+                                }
+                                else if (tower->getTowerType() == 2) //fast lazer tower
+                                {
+                                    QSoundEffect *canoneffect = new QSoundEffect(this);
+                                    canoneffect->setSource(QUrl("qrc:/laser.wav"));
+                                    canoneffect->setVolume(0.5); // 0.0 to 1.0
+                                    canoneffect->play();
+                                }
+
+                                if (enemy->properties.health <= 0) {
+                                    QSoundEffect *effect = new QSoundEffect(this);
+                                    effect->setSource(QUrl("qrc:/death.wav"));
+                                    effect->setVolume(0.3); // 0.0 to 1.0 in percentages
+                                    effect->play();
+
+                                    addGold(enemy->properties.goldReward); // Reward gold
+                                    qDebug() << "Enemy killed, added" << enemy->properties.goldReward << "gold";
+                                }
+                                tower->resetCooldown();
+                                tower->setStyleSheet("background-color: red;");
+                                QTimer::singleShot(100, tower, [tower]() {
+                                    tower->setStyleSheet("");
+                                });
+                                attacked = true;
+                                break;
+                            }
+                        }
+                        if (attacked) break;
+                    }
+                }
+            }
+        }
+    }
+}
+
+void gamewindow::addGold(int amount) {
+    gold += amount;
+    Gold->setText("Gold: " + QString::number(gold));
 }

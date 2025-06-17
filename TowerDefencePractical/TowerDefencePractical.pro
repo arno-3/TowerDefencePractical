@@ -37,16 +37,27 @@ else: unix:!android: target.path = /opt/$${TARGET}/bin
 !isEmpty(target.path): INSTALLS += target
 
 RESOURCES += \
+    Basedestroyed.qrc \
     Basephoto.qrc \
     BigAlien.qrc \
+    Bigsound.qrc \
     Bigtower.qrc \
+    Canon.qrc \
     Click.qrc \
+    Dying.qrc \
     Fasttower.qrc \
+    FightMusic.qrc \
     Grass.qrc \
+    Lazer.qrc \
+    Mexplosion.qrc \
     Regtower.qrc \
     SmallAlien.qrc \
     Spaceship.qrc \
+    homerScream.qrc \
     homerSound.qrc \
     homiepic.qrc \
     homietransparentpng.qrc \
-    minePic.qrc
+    menuEffect.qrc \
+    minePic.qrc \
+    mineboom.qrc \
+    musicM.qrc

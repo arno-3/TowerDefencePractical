@@ -3,6 +3,8 @@
 #include <QTimer>
 #include <QObject>
 #include <gamewindow.h>
+#include <QMediaPlayer>
+#include <QMediaPlaylist>
 
 menu::menu(QWidget *parent) : QMainWindow(parent)
 {
@@ -51,6 +53,19 @@ menu::menu(QWidget *parent) : QMainWindow(parent)
     homer->move(width()/2-homer->width()/2,535);
     connect(homer, &MenuBtn::clicked, this, &menu::onHomerClicked);
 
+    menuEffect = new QMediaPlayer(this);
+    QMediaPlaylist *playlist = new QMediaPlaylist(this);
+
+    // Add media to playlist
+    playlist->addMedia(QUrl("qrc:/MusicMenu.mp3")); // Ensure correct path
+    playlist->setPlaybackMode(QMediaPlaylist::Loop); // Loop the music
+
+    // Set playlist and volume
+    menuEffect->setPlaylist(playlist);
+    menuEffect->setVolume(50); // 0 to 100
+    menuEffect->play();
+
+
 
 }
 
@@ -65,6 +80,20 @@ void menu::onStartClicked(bool state)
 
         gamewindow *g = new gamewindow(0,this);
         g->show();
+
+        menuEffect->stop();
+        startEffect = new QMediaPlayer(this);
+        QMediaPlaylist *playlist = new QMediaPlaylist(this);
+
+        // Add media to playlist
+        playlist->addMedia(QUrl("qrc:/BattleMusic.mp3")); // Ensure correct path
+        playlist->setPlaybackMode(QMediaPlaylist::Loop); // Loop the music
+
+        // Set playlist and volume
+        startEffect->setPlaylist(playlist);
+        startEffect->setVolume(50); // 0 to 100
+        startEffect->play();
+
         //this->setWindowState(Qt::WindowMinimized);
     }
      m->setState(false);
@@ -107,6 +136,7 @@ void menu::onHomerClicked(bool state)
     // reset state (DONE)
 
     MenuBtn *m = (MenuBtn*)QObject::sender();
+    menuEffect->stop();
 
     if(!state)
     {
@@ -158,5 +188,6 @@ void menu::onTimerTick()
         online->show();
         exit->show();
         homer->show();
+        menuEffect->play();
     }
 }

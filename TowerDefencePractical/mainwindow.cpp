@@ -4,6 +4,8 @@
 #include <QPixmap>
 #include <QSoundEffect>
 #include <QVector>
+#include <QMediaPlayer>
+#include <QMediaPlaylist>
 
 MainWindow::MainWindow(QWidget *parent)
     : QMainWindow(parent)
@@ -57,6 +59,18 @@ MainWindow::MainWindow(QWidget *parent)
     homer = new MenuBtn(this);
     homer->move(width()/2-homer->width()/2,535);
     connect(homer, &MenuBtn::clicked, this, &MainWindow::onHomerClicked);
+
+    menuEffect = new QMediaPlayer(this);
+    QMediaPlaylist *playlist = new QMediaPlaylist(this);
+
+    // Add media to playlist
+    playlist->addMedia(QUrl("qrc:/MusicMenu.mp3")); // Ensure correct path
+    playlist->setPlaybackMode(QMediaPlaylist::Loop); // Loop the music
+
+    // Set playlist and volume
+    menuEffect->setPlaylist(playlist);
+    menuEffect->setVolume(100); // 0 to 100
+    menuEffect->play();
 
 }
 

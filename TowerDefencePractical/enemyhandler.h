@@ -28,6 +28,14 @@ public:
     void updatePaths(int r, int c);
     void setCell(int val, int row, int col);
 
+    void createWaves();
+    int getX(QPoint p);
+    int getY(QPoint p);
+    // New method to access enemies
+    const QVector<enemies*>& getEnemies() const { return ennemies; }
+    // New method to damage enemies
+    void damageEnemy(enemies* enemy, int damage);
+
 signals:
     void crash(int damage);
 
@@ -45,11 +53,10 @@ private:
 
     double tick=0;
     int wave = 0;
-    int getX(QPoint p);
-    int getY(QPoint p);
+
     QPoint *flowChart[10][10];//contains the coordinates in grid space
     int mapChart[10][10];
-    void createWaves();
+
     bool waveStarted = false;
 };
 

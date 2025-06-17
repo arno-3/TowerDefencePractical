@@ -6,6 +6,7 @@
 #include <QLabel>
 #include <towerbtn.h>
 #include <gridblocks.h>
+#include <QMediaPlayer>
 
 class MainWindow : public QMainWindow
 {
@@ -50,6 +51,8 @@ private:
     QLabel *mine;
 
     gridBlocks *gridVector[10][10];
+
+    QMediaPlayer *menuEffect;
 
 
 private slots:

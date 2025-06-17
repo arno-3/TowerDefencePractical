@@ -12,27 +12,54 @@ enemies::enemies(QWidget *parent, int enemyType, QPoint *spawnPos, int x, int y)
 
     outline = new QLabel(this);
     outline->setGeometry(0,0,width(),height());
+
 //    outline->setAttribute(Qt::WA_TranslucentBackground);
+
+    hBar = new QProgressBar(this);
+    hBar->setGeometry(0,0,100,10);
+    hBar->setTextVisible(false);
+    hBar->setStyleSheet(
+        "QProgressBar {"
+        "   border: 1px solid black;"
+        "   background: transparent;"
+        "}"
+        "QProgressBar::chunk {"
+        "   background-color: green;" // Green when healthy
+        "}"
+    );
+
 
     switch(enemyType)
     {
     case 0://Small
+        properties.health = 20;
         properties.damage = 5;//percentage
         properties.speed = 1000;
         properties.type = 0;//store type
+        properties.goldReward = 10;
         outline->setStyleSheet("image: url(:/SmallAlien.png);");
+        hBar->setMaximum(20);
+        hBar->setValue(properties.health);
         break;
     case 1://Big
+        properties.health = 50;
         properties.damage = 25;//percentage
         properties.speed = 1500;
         properties.type = 1;//store type
+        properties.goldReward = 20;
         outline->setStyleSheet("image: url(:/BigAlien.png); background:rgba(0,0,0,0);");
+        hBar->setMaximum(50);
+        hBar->setValue(properties.health);
         break;
     case 2://Spaceship
+        properties.health = 20;
         properties.damage = 30;//percentage
         properties.speed = 2000;
+        properties.goldReward = 30;
         properties.type = 2;//store type
         outline->setStyleSheet("image: url(:/Spaceship.png);");
+        hBar->setMaximum(20);
+        hBar->setValue(properties.health);
         break;
     default:
         properties.damage = 20;//percentage
@@ -43,6 +70,7 @@ enemies::enemies(QWidget *parent, int enemyType, QPoint *spawnPos, int x, int y)
     }
     outline->raise();
     outline->show();
+    hBar->show();
 
     currentHop = *spawnPos;
     move(x, y);
@@ -52,6 +80,10 @@ enemies::enemies(QWidget *parent, int enemyType, QPoint *spawnPos, int x, int y)
     tick = 0;
     timer->setInterval(10);
     timer->start();
+
+    healthTimer = new QTimer(this);
+    connect(healthTimer, &QTimer::timeout, this, &enemies::updateHealthBar);
+    healthTimer->start(100);
 }
 
 
@@ -232,4 +264,26 @@ bool enemies::crashed()
 bool enemies::hasSpawned()
 {
     return spawned;
+}
+
+void enemies::updateHealthBar() {
+    hBar->setValue(properties.health);
+    if (properties.health <= 0) {
+        hBar->hide();
+    } else {
+        // Change color based on health
+        QString color = properties.health > properties.health * 0.5 ? "green" :
+                        properties.health > properties.health * 0.25 ? "yellow" : "red";
+        hBar->setStyleSheet(
+            QString(
+                "QProgressBar {"
+                "   border: 1px solid black;"
+                "   background: transparent;"
+                "}"
+                "QProgressBar::chunk {"
+                "   background-color: %1;"
+                "}"
+            ).arg(color)
+        );
+    }
 }

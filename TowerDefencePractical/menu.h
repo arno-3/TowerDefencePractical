@@ -4,6 +4,7 @@
 #include <QMainWindow>
 #include <menubtn.h>
 #include <QSoundEffect>
+#include <QMediaPlayer>
 
 class menu : public QMainWindow
 {
@@ -30,6 +31,9 @@ private:
 
     QSoundEffect *effect;
     int homieCount = 0;
+
+    QMediaPlayer *menuEffect;
+    QMediaPlayer *startEffect;
 
 private slots:
     void onStartClicked(bool);

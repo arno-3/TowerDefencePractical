@@ -2,6 +2,7 @@
 #include <enemies.h>
 #include <QDebug>
 #include <QRandomGenerator64>
+#include <QSoundEffect>
 
 EnemyHandler::EnemyHandler(QObject *parent, QMainWindow *p) : QObject(parent)
 {
@@ -159,6 +160,14 @@ void EnemyHandler::runGame()
             {
 //                ennemies[e]->glow();
                 qDebug() << "CRASH and Burn!!!" << endl;
+
+
+                QSoundEffect *effect = new QSoundEffect(this);
+                effect->setSource(QUrl("qrc:/Pain.wav"));
+                effect->setVolume(0.5); // 0.0 to 1.0 in percentages
+                effect->play();
+
+
                 ennemies[e]->setFixedSize(150,150);
                 emit crash(ennemies[e]->properties.damage);
                 ennemies[e]->deleteLater();
@@ -292,4 +301,13 @@ void EnemyHandler::setPaths()
 void EnemyHandler::setCell(int val, int row, int col)
 {
     mapChart[row][col] = val;
+}
+
+void EnemyHandler::damageEnemy(enemies* enemy, int damage) {
+    enemy->properties.health -= damage;
+    enemy->updateHealthBar();
+    if (enemy->properties.health <= 0) {
+        ennemies.removeOne(enemy);
+        enemy->deleteLater();
+    }
 }

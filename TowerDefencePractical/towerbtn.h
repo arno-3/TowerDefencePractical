@@ -13,6 +13,10 @@ public:
     int getTowerType() const { return towerType; }
     void setInteractive(bool interactive);
     int towerCost;
+    int getDamage() const {return damage;}
+    bool canAttack() const { return cooldownTimer <= 0; }
+    void resetCooldown() { cooldownTimer = attackCooldown; }
+    void updateCooldown(int deltaTime) { if (cooldownTimer > 0) cooldownTimer -= deltaTime; }
 
 
 signals:
@@ -25,6 +29,9 @@ private:
 
     QLabel *outline;
     int towerType;
+    int damage;
+    int attackCooldown;
+    int cooldownTimer;
 
 };
 

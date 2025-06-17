@@ -5,6 +5,7 @@
 #include <QLabel>
 #include <QMouseEvent>
 #include <QTimer>
+#include <QProgressBar>
 
 struct enemy_properties
 {
@@ -15,6 +16,7 @@ struct enemy_properties
     double dX, dY = 0;
     QPoint pos = QPoint(0,0);
     int gridPos[2] = {0,0};
+    int goldReward;
 };
 
 class enemies : public QWidget
@@ -31,14 +33,17 @@ public:
     bool crashed();
     bool hasSpawned();
     enemy_properties properties;
+    void updateHealthBar();
 
 
 signals:
 
 
 private:
-    QTimer *timer, *t;
+    QTimer *timer, *t, *healthTimer;
     QLabel *outline;
+    QProgressBar *hBar;
+
 
     double tick;
     int glowCount =0;

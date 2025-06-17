@@ -1,0 +1,5 @@
+<RCC>
+    <qresource prefix="/">
+        <file>GameOver.wav</file>
+    </qresource>
+</RCC>

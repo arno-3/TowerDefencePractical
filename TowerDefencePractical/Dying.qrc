@@ -1,0 +1,5 @@
+<RCC>
+    <qresource prefix="/">
+        <file>death.wav</file>
+    </qresource>
+</RCC>

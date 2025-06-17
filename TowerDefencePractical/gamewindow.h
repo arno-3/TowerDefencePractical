@@ -9,6 +9,7 @@
 #include "gridblocks.h"
 #include <enemyhandler.h>
 #include <QProgressBar>
+#include <QTimer>
 
 class gamewindow : public QMainWindow
 {
@@ -22,11 +23,14 @@ class gamewindow : public QMainWindow
 
 public:
     explicit gamewindow(QWidget *parent = nullptr,QMainWindow *menu = nullptr);
+    void addGold(int amount);
 
 
 private:
     QLabel *grass;
     QLabel *base;
+
+    QTimer *gameTimer;
 
     QMainWindow Menu;
     EnemyHandler *enemyH;
@@ -55,6 +59,7 @@ private:
     bBase base_specs;
     QLabel *Gold;
     QProgressBar *pHealth;
+    QLabel *bHealth;
     const int towerCosts[4] = {20, 30, 25, 15}; // Costs for tower types 0-3
 
 
@@ -67,6 +72,7 @@ private slots:
     void onTowerButtonClicked(int towerType);
     void onGridBlockClicked(int row, int col);
     void onCrash(int damage);
+    void updateGame();
 
 };
 
