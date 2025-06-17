@@ -22,21 +22,49 @@ gamewindow::gamewindow(QWidget *parent, QMainWindow *menu) : QMainWindow(parent)
     RegT = new TowerBtn(this,0);
     RegT->move(0,0);
     RegT->show();
+
+    Rprice = new QLabel(this);
+    Rprice->setText("20");
+    Rprice->move(45,70);
+    Rprice->setFont(QFont("Comic Sans MS", 15));
+    Rprice->setStyleSheet("color: gold; background: transparent;");
+
     connect(RegT, &TowerBtn::towerSelected, this, &gamewindow::onTowerButtonClicked);
 
     BigT = new TowerBtn(this,1);
     BigT->move(RegT->width(),0);
     BigT->show();
+
+    Bprice = new QLabel(this);
+    Bprice->setText("30");
+    Bprice->move(145,70);
+    Bprice->setFont(QFont("Comic Sans MS", 15));
+    Bprice->setStyleSheet("color: gold; background: transparent;");
+
     connect(BigT, &TowerBtn::towerSelected, this, &gamewindow::onTowerButtonClicked);
 
     FastT = new TowerBtn(this,2);
     FastT->move(0,RegT->height());
     FastT->show();
+
+    Fprice = new QLabel(this);
+    Fprice->setText("25");
+    Fprice->move(45,170);
+    Fprice->setFont(QFont("Comic Sans MS", 15));
+    Fprice->setStyleSheet("color: gold; background: transparent;");
+
     connect(FastT, &TowerBtn::towerSelected, this, &gamewindow::onTowerButtonClicked);
 
     MineT = new TowerBtn(this,3);
     MineT->move(RegT->width(), RegT->height());
     MineT->show();
+
+    Bprice = new QLabel(this);
+    Bprice->setText("15");
+    Bprice->move(145,170);
+    Bprice->setFont(QFont("Comic Sans MS", 15));
+    Bprice->setStyleSheet("color: gold; background: transparent;");
+
     connect(MineT, &TowerBtn::towerSelected, this, &gamewindow::onTowerButtonClicked);
 
     // Initialize gold display

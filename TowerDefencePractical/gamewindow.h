@@ -61,6 +61,7 @@ private:
     QProgressBar *pHealth;
     QLabel *bHealth;
     const int towerCosts[4] = {20, 30, 25, 15}; // Costs for tower types 0-3
+    QLabel *Rprice, *Fprice, *Bprice, Mprice;
 
 
 

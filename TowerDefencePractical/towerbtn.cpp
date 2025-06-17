@@ -11,6 +11,8 @@ TowerBtn::TowerBtn(QWidget *parent, int towerType) : QWidget(parent), towerType(
     outline->setGeometry(0, 0, width(), height());
     outline->setAttribute(Qt::WA_TransparentForMouseEvents); // Allows parent to receive clicks
 
+
+
     switch(towerType)
     {
     case 0: // Regular Tower
@@ -18,6 +20,8 @@ TowerBtn::TowerBtn(QWidget *parent, int towerType) : QWidget(parent), towerType(
         towerCost = 20;
         damage = 15;
         attackCooldown = 1000;
+
+
         break;
     case 1: // Big Tower
         outline->setStyleSheet("width:100px;height:100px;border: 1px solid white;image: url(:/BigTower.png);background: transparent;");
