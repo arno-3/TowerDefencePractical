@@ -57,6 +57,7 @@ void EnemyHandler::run()
 //    e->raise();
 //    en->raise();
 //    enn->raise();
+    //fix
     timer->start();
     createWaves();
 }
