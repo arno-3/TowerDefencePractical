@@ -19,7 +19,7 @@ EnemyHandler::EnemyHandler(QObject *parent, QMainWindow *p, QThread *thread) : Q
         }
     }
     setPaths();
-    moveToThread(thread);
+//    moveToThread(thread);
 
 }
 

@@ -7,7 +7,7 @@
 #include <QTimer>
 #include <QProgressBar>
 #include <QGraphicsOpacityEffect>
-#include <threadtimer.h>
+//#include <threadtimer.h>
 
 
 struct enemy_properties
@@ -48,7 +48,7 @@ private:
     QTimer *timer, *t, *healthTimer;
     QLabel *outline;
     QProgressBar *hBar;
-    ThreadTimer *spwnThread, *healthThread, *glowThread;
+//    ThreadTimer *spwnThread, *healthThread, *glowThread;
 
     double tick;
     int glowCount =0;

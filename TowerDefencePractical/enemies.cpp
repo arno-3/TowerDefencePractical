@@ -125,23 +125,23 @@ enemies::enemies(QWidget *parent, int enemyType, QPoint *spawnPos, int x, int y)
     currentHop = *spawnPos;
     move(x, y);
 
-//    timer = new QTimer();
-//    connect(timer,&QTimer::timeout,this,&enemies::start);
-//    tick = 0;
-//    timer->setInterval(10);
-//    timer->start();
+    timer = new QTimer();
+    connect(timer,&QTimer::timeout,this,&enemies::start);
+    tick = 0;
+    timer->setInterval(10);
+    timer->start();
 
-    spwnThread = new ThreadTimer();
-    QThread *threadSpawn =new QThread;
-    spwnThread->moveToThread(threadSpawn);
-    connect(threadSpawn,&QThread::started,spwnThread,&ThreadTimer::run);
+//    spwnThread = new ThreadTimer();
+//    QThread *threadSpawn =new QThread;
+//    spwnThread->moveToThread(threadSpawn);
+//    connect(threadSpawn,&QThread::started,spwnThread,&ThreadTimer::run);
 
-    connect(spwnThread, &ThreadTimer::opacify,this,&enemies::opacitySlot);
-    connect(spwnThread,&ThreadTimer::finish,this,&enemies::spawn);
-    connect(spwnThread,&ThreadTimer::finish,threadSpawn,&QThread::quit);
-    connect(threadSpawn,&QThread::finished,threadSpawn,&QThread::deleteLater);
+//    connect(spwnThread, &ThreadTimer::opacify,this,&enemies::opacitySlot);
+//    connect(spwnThread,&ThreadTimer::finish,this,&enemies::spawn);
+//    connect(spwnThread,&ThreadTimer::finish,threadSpawn,&QThread::quit);
+//    connect(threadSpawn,&QThread::finished,threadSpawn,&QThread::deleteLater);
 
-    threadSpawn->start();
+//    threadSpawn->start();
 
     healthTimer = new QTimer(this);
     connect(healthTimer, &QTimer::timeout, this, &enemies::updateHealthBar);
