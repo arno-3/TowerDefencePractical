@@ -38,7 +38,7 @@ TowerBtn::TowerBtn(QWidget *parent, int towerType) : QWidget(parent), towerType(
     case 3: // LandMine
         outline->setStyleSheet("width:100px;height:100px;border: 1px solid white;image: url(:/Mine.png);background: transparent;");
         towerCost = 15;
-        damage = 100;
+        damage = 50;
         break;
     default: // Wall
         outline->setStyleSheet("width:100px;height:100px;border: 1px solid white;image: url(:/RegTower.png);background: transparent;");

@@ -31,7 +31,7 @@ private:
     QLabel *base;
 
     QTimer *gameTimer;
-
+    QThread *thread;
     QMainWindow Menu;
     EnemyHandler *enemyH;
 

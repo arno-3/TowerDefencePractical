@@ -3,7 +3,8 @@
 //#include <enemyhandler.h>
 #include <QtConcurrent/QtConcurrentRun>
 #include <QSoundEffect>
-
+#include <QMediaPlayer>
+#include <QMediaPlaylist>
 
 gamewindow::gamewindow(QWidget *parent, QMainWindow *menu) : QMainWindow(parent), selectedTowerType(-1)
 {
@@ -92,15 +93,19 @@ gamewindow::gamewindow(QWidget *parent, QMainWindow *menu) : QMainWindow(parent)
     bHealth->setFont(QFont("Comic Sans MS", 15));
 
 
-
-    enemyH = new EnemyHandler(this,this);
+    thread = new QThread();
+    enemyH = new EnemyHandler(this,this, thread);
+    enemyH->run();
     convertIsometric();
 //    QtConcurrent::run([this]{enemyH->run();});
 //    enemyH->
-    enemyH->run();
+
+//    enemyH->moveToThread(thread);
 
     //connect(this,&gamewindow::placedBlock,enemyH,&EnemyHandler::updatePaths);
     connect(enemyH,&EnemyHandler::crash,this,&gamewindow::onCrash);
+
+
 }
 
 void gamewindow::onExit(QMainWindow *m)
@@ -195,6 +200,8 @@ void gamewindow::onTowerButtonClicked(int towerType)
 {
     selectedTowerType = towerType;
     qDebug() << "Tower selected:" << towerType;
+    TowerBtn *btn = (TowerBtn*)QObject::sender();
+    btn->setStyleSheet("background:rgba(5,5,16,58);");
 }
 
 void gamewindow::onGridBlockClicked(int row, int col)

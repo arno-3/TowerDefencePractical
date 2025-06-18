@@ -6,6 +6,9 @@
 #include <QMouseEvent>
 #include <QTimer>
 #include <QProgressBar>
+#include <QGraphicsOpacityEffect>
+#include <threadtimer.h>
+
 
 struct enemy_properties
 {
@@ -34,6 +37,8 @@ public:
     bool hasSpawned();
     enemy_properties properties;
     void updateHealthBar();
+    void spawnStart(bool);
+    void Opacity(QGraphicsOpacityEffect*);
 
 
 signals:
@@ -43,7 +48,7 @@ private:
     QTimer *timer, *t, *healthTimer;
     QLabel *outline;
     QProgressBar *hBar;
-
+    ThreadTimer *spwnThread, *healthThread, *glowThread;
 
     double tick;
     int glowCount =0;
@@ -54,14 +59,17 @@ private:
     bool moving = false;
     int glideT, glideMax = 0;
     int tX, tY = 0;
-    void spawn();
+
     bool spawned = false;
     bool bCrashed = false;
+
 
 private slots:
     void glowTick();
     void glideTick();
     void start();
+    void spawn();
+    void opacitySlot(QGraphicsOpacityEffect* op);
 };
 
 #endif // ENEMIES_H

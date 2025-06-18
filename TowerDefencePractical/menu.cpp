@@ -82,6 +82,8 @@ void menu::onStartClicked(bool state)
         g->show();
 
         menuEffect->stop();
+        menuEffect->deleteLater();
+
         startEffect = new QMediaPlayer(this);
         QMediaPlaylist *playlist = new QMediaPlaylist(this);
 

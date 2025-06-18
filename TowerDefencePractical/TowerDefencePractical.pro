@@ -18,6 +18,7 @@ SOURCES += \
     mainwindow.cpp \
     menu.cpp \
     menubtn.cpp \
+    threadtimer.cpp \
     towerbtn.cpp
 
 HEADERS += \
@@ -29,6 +30,7 @@ HEADERS += \
     mainwindow.h \
     menu.h \
     menubtn.h \
+    threadtimer.h \
     towerbtn.h
 
 # Default rules for deployment.

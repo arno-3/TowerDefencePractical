@@ -1,9 +1,60 @@
 #include "enemies.h"
 #include <QTimer>
-#include <QGraphicsOpacityEffect>
+//#include <QGraphicsOpacityEffect>
 #include <QDebug>
 #include <cmath>
 #include <QThread>
+
+
+class SpawnControl : public QObject
+{
+    Q_OBJECT
+
+public slots:
+    explicit SpawnControl(QObject *p = nullptr)
+    {
+        E =(enemies*)p;
+        timer->setInterval(10);
+        connect(timer,&QTimer::timeout,this,&SpawnControl::spawnSlot);
+        timer->start();
+        tick = 0;
+    };
+    void spawnSlot()
+    {
+        ++tick;
+        QGraphicsOpacityEffect *opacity = new QGraphicsOpacityEffect;
+        double qr = 1.0f;
+        qDebug()<<"|"<< E->properties.type <<"| SPAWNING |"<< tick <<endl;
+        qr = (tick<100)?(100-tick)/100:(tick>=100 && tick < 200)?(tick-100)/100:-1;
+        bool spawned = (qr>=0)?false:true;
+        E->spawnStart(spawned);
+        opacity->setOpacity(qr);
+        E->Opacity(opacity);
+
+        if(spawned)
+            this->deleteLater();
+
+    };
+private:
+    enemies *E;
+    QTimer *timer = new QTimer;
+    QThread *thread = new QThread;
+    int tick = 0;
+};
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 enemies::enemies(QWidget *parent, int enemyType, QPoint *spawnPos, int x, int y) : QWidget(parent)
 {
@@ -13,7 +64,6 @@ enemies::enemies(QWidget *parent, int enemyType, QPoint *spawnPos, int x, int y)
     outline = new QLabel(this);
     outline->setGeometry(0,0,width(),height());
 
-//    outline->setAttribute(Qt::WA_TranslucentBackground);
 
     hBar = new QProgressBar(this);
     hBar->setGeometry(0,0,100,10);
@@ -58,7 +108,7 @@ enemies::enemies(QWidget *parent, int enemyType, QPoint *spawnPos, int x, int y)
         properties.goldReward = 30;
         properties.type = 2;//store type
         outline->setStyleSheet("image: url(:/Spaceship.png);");
-        hBar->setMaximum(20);
+        hBar->setMaximum(100);
         hBar->setValue(properties.health);
         break;
     default:
@@ -75,11 +125,23 @@ enemies::enemies(QWidget *parent, int enemyType, QPoint *spawnPos, int x, int y)
     currentHop = *spawnPos;
     move(x, y);
 
-    timer = new QTimer();
-    connect(timer,&QTimer::timeout,this,&enemies::start);
-    tick = 0;
-    timer->setInterval(10);
-    timer->start();
+//    timer = new QTimer();
+//    connect(timer,&QTimer::timeout,this,&enemies::start);
+//    tick = 0;
+//    timer->setInterval(10);
+//    timer->start();
+
+    spwnThread = new ThreadTimer();
+    QThread *threadSpawn =new QThread;
+    spwnThread->moveToThread(threadSpawn);
+    connect(threadSpawn,&QThread::started,spwnThread,&ThreadTimer::run);
+
+    connect(spwnThread, &ThreadTimer::opacify,this,&enemies::opacitySlot);
+    connect(spwnThread,&ThreadTimer::finish,this,&enemies::spawn);
+    connect(spwnThread,&ThreadTimer::finish,threadSpawn,&QThread::quit);
+    connect(threadSpawn,&QThread::finished,threadSpawn,&QThread::deleteLater);
+
+    threadSpawn->start();
 
     healthTimer = new QTimer(this);
     connect(healthTimer, &QTimer::timeout, this, &enemies::updateHealthBar);
@@ -217,6 +279,7 @@ void enemies::glide(int x, int y)
 
     connect(t, &QTimer::timeout,this,&enemies::glideTick);
     t->start();
+
 }
 
 void enemies::start()
@@ -272,8 +335,8 @@ void enemies::updateHealthBar() {
         hBar->hide();
     } else {
         // Change color based on health
-        QString color = properties.health > properties.health * 0.5 ? "green" :
-                        properties.health > properties.health * 0.25 ? "yellow" : "red";
+        QString color = properties.health > 100 * 0.5 ? "green" :
+                        properties.health > 100 * 0.25 ? "yellow" : "red";
         hBar->setStyleSheet(
             QString(
                 "QProgressBar {"
@@ -286,4 +349,26 @@ void enemies::updateHealthBar() {
             ).arg(color)
         );
     }
+}
+
+
+void enemies::spawnStart(bool spwn)
+{
+    spawned = spwn;
+}
+
+void enemies::Opacity(QGraphicsOpacityEffect* opacity)
+{
+    this->setGraphicsEffect(opacity);
+}
+
+void enemies::spawn()
+{
+    spawned = true;
+}
+
+
+void enemies::opacitySlot(QGraphicsOpacityEffect *op)
+{
+
 }

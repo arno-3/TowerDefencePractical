@@ -4,7 +4,7 @@
 #include <QRandomGenerator64>
 #include <QSoundEffect>
 
-EnemyHandler::EnemyHandler(QObject *parent, QMainWindow *p) : QObject(parent)
+EnemyHandler::EnemyHandler(QObject *parent, QMainWindow *p, QThread *thread) : QObject(parent)
 {
     //this->W = p;
     this->W = p;
@@ -19,6 +19,7 @@ EnemyHandler::EnemyHandler(QObject *parent, QMainWindow *p) : QObject(parent)
         }
     }
     setPaths();
+    moveToThread(thread);
 
 }
 
@@ -40,7 +41,7 @@ void EnemyHandler::run()
      */
     timer = new QTimer();
     connect(timer,&QTimer::timeout,this,&EnemyHandler::runGame);
-    timer->setInterval(100);
+    timer->setInterval(10);
     ++wave;
 
 //    enemies *e = new enemies(W,0, new QPoint(0,0),getX(0,0),getY(0,0));
@@ -64,16 +65,17 @@ void EnemyHandler::run()
 
 void EnemyHandler::createWaves()
 {
-    int max_wave_size = wave*QRandomGenerator64::global()->bounded(1,10);
-    int numSmalls = QRandomGenerator64::global()->bounded(0,2*wave);
+    int max_wave_size = wave*QRandomGenerator64::global()->bounded(1,7);
+    int numSmalls = QRandomGenerator64::global()->bounded(0,5*wave);
     int numBiggies, numSpaceships = 0;
     ennemies.clear();
+    tick =0;
 
     if((max_wave_size-numSmalls)>0)
         numBiggies = QRandomGenerator64::global()->bounded(0,max_wave_size-numSmalls);
 
-//    if((max_wave_size-numSmalls-numBiggies)>0)
-//        numSpaceships = (wave>=3)?(0):(QRandomGenerator64::global()->bounded(1,max_wave_size-numSmalls-numBiggies));
+    if((max_wave_size-numSmalls-numBiggies)>0)
+        numSpaceships = (wave>=3)?(0):(QRandomGenerator64::global()->bounded(0,max_wave_size-numSmalls-numBiggies));
 
     for(int i = 0;i<numSmalls;++i)
     {
@@ -140,21 +142,21 @@ int EnemyHandler::getY(QPoint p)
 void EnemyHandler::runGame()
 {
     ++tick;
-    int enCount = ennemies.size();
+//    int enCount = ennemies.size();
 
     if(ennemies.size()>0 && waveStarted)
     {
-    for(int e=0;e<ennemies.size();++e)
+    for(enemies* en : ennemies)//for(int e=0;e<ennemies.size();++e)
     {
-        if(!ennemies[e]->isMoving() && !ennemies[e]->crashed() && ennemies[e]->hasSpawned())
+        if(!en->isMoving() && !en->crashed() && en->hasSpawned())
         {
-            QPoint pos = ennemies[e]->getPos();
+            QPoint pos = en->getPos();
             QPoint next = *flowChart[pos.x()][pos.y()];
-            ennemies[e]->moveTo(next, getX(next),getY(next));
+            en->moveTo(next, getX(next),getY(next));
             pos.~QPoint();
             next.~QPoint();
             qDebug()<<"Tick: "<<tick<<endl;
-            ennemies[e]->raise();
+            en->raise();
 
             if(((pos - QPoint(9,8)) == QPoint(0,0))||(pos  - QPoint(8,9) == QPoint(0,0)))
             {
@@ -167,13 +169,9 @@ void EnemyHandler::runGame()
                 effect->setVolume(0.5); // 0.0 to 1.0 in percentages
                 effect->play();
 
-
-                ennemies[e]->setFixedSize(150,150);
-                emit crash(ennemies[e]->properties.damage);
-                ennemies[e]->deleteLater();
-                ennemies.removeAt(e);
-//                ennemies.resize(enCount-1);
-                QThread::msleep(50);
+                emit crash(en->properties.damage);
+                en->deleteLater();
+                ennemies.removeOne(en);
             }
         }
 

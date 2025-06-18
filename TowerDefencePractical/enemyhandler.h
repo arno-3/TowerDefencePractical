@@ -14,7 +14,7 @@ class EnemyHandler : public QObject
     Q_OBJECT
     QThread thread;
 public:
-    explicit EnemyHandler(QObject *pareQMainWindownt = nullptr, QMainWindow *p = nullptr);
+    explicit EnemyHandler(QObject *pareQMainWindownt = nullptr, QMainWindow *p = nullptr, QThread *thread = nullptr);
 
     void setPaths();
    // void updatePaths();
