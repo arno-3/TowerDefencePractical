@@ -18,7 +18,6 @@ SOURCES += \
     mainwindow.cpp \
     menu.cpp \
     menubtn.cpp \
-    threadtimer.cpp \
     towerbtn.cpp
 
 HEADERS += \
@@ -30,7 +29,6 @@ HEADERS += \
     mainwindow.h \
     menu.h \
     menubtn.h \
-    threadtimer.h \
     towerbtn.h
 
 # Default rules for deployment.
@@ -59,6 +57,7 @@ RESOURCES += \
     homerSound.qrc \
     homiepic.qrc \
     homietransparentpng.qrc \
+    intro.qrc \
     menuEffect.qrc \
     minePic.qrc \
     mineboom.qrc \

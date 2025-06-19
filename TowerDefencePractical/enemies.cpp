@@ -1,62 +1,11 @@
 #include "enemies.h"
 #include <QTimer>
-//#include <QGraphicsOpacityEffect>
+#include <QGraphicsOpacityEffect>
 #include <QDebug>
 #include <cmath>
 #include <QThread>
 
-
-class SpawnControl : public QObject
-{
-    Q_OBJECT
-
-public slots:
-    explicit SpawnControl(QObject *p = nullptr)
-    {
-        E =(enemies*)p;
-        timer->setInterval(10);
-        connect(timer,&QTimer::timeout,this,&SpawnControl::spawnSlot);
-        timer->start();
-        tick = 0;
-    };
-    void spawnSlot()
-    {
-        ++tick;
-        QGraphicsOpacityEffect *opacity = new QGraphicsOpacityEffect;
-        double qr = 1.0f;
-        qDebug()<<"|"<< E->properties.type <<"| SPAWNING |"<< tick <<endl;
-        qr = (tick<100)?(100-tick)/100:(tick>=100 && tick < 200)?(tick-100)/100:-1;
-        bool spawned = (qr>=0)?false:true;
-        E->spawnStart(spawned);
-        opacity->setOpacity(qr);
-        E->Opacity(opacity);
-
-        if(spawned)
-            this->deleteLater();
-
-    };
-private:
-    enemies *E;
-    QTimer *timer = new QTimer;
-    QThread *thread = new QThread;
-    int tick = 0;
-};
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-enemies::enemies(QWidget *parent, int enemyType, QPoint *spawnPos, int x, int y) : QWidget(parent)
+enemies::enemies(QWidget *parent, int enemyType, QPoint *spawnPos, int x, int y, int wave) : QWidget(parent)
 {
     setFixedSize(100, 100);
     setStyleSheet("background: transparent;"); // Ensure widget background is transparent
@@ -64,6 +13,7 @@ enemies::enemies(QWidget *parent, int enemyType, QPoint *spawnPos, int x, int y)
     outline = new QLabel(this);
     outline->setGeometry(0,0,width(),height());
 
+//    outline->setAttribute(Qt::WA_TranslucentBackground);
 
     hBar = new QProgressBar(this);
     hBar->setGeometry(0,0,100,10);
@@ -82,33 +32,36 @@ enemies::enemies(QWidget *parent, int enemyType, QPoint *spawnPos, int x, int y)
     switch(enemyType)
     {
     case 0://Small
-        properties.health = 20;
+        properties.maxHealth = 20*(1+wave/5);
+        properties.health = properties.maxHealth;
         properties.damage = 5;//percentage
         properties.speed = 1000;
         properties.type = 0;//store type
-        properties.goldReward = 10;
+        properties.goldReward = 15;
         outline->setStyleSheet("image: url(:/SmallAlien.png);");
-        hBar->setMaximum(20);
+        hBar->setMaximum(properties.maxHealth);
         hBar->setValue(properties.health);
         break;
     case 1://Big
-        properties.health = 50;
+        properties.maxHealth = 50*(1+wave/5);
+        properties.health = properties.maxHealth;
         properties.damage = 25;//percentage
         properties.speed = 1500;
         properties.type = 1;//store type
-        properties.goldReward = 20;
+        properties.goldReward = 25;
         outline->setStyleSheet("image: url(:/BigAlien.png); background:rgba(0,0,0,0);");
-        hBar->setMaximum(50);
+        hBar->setMaximum(properties.maxHealth);
         hBar->setValue(properties.health);
         break;
     case 2://Spaceship
-        properties.health = 20;
+        properties.maxHealth = 100*(1+wave/5);
+        properties.health = properties.maxHealth;
         properties.damage = 30;//percentage
         properties.speed = 2000;
-        properties.goldReward = 30;
+        properties.goldReward = 45;
         properties.type = 2;//store type
         outline->setStyleSheet("image: url(:/Spaceship.png);");
-        hBar->setMaximum(100);
+        hBar->setMaximum(properties.maxHealth);
         hBar->setValue(properties.health);
         break;
     default:
@@ -130,18 +83,7 @@ enemies::enemies(QWidget *parent, int enemyType, QPoint *spawnPos, int x, int y)
     tick = 0;
     timer->setInterval(10);
     timer->start();
-
-//    spwnThread = new ThreadTimer();
-//    QThread *threadSpawn =new QThread;
-//    spwnThread->moveToThread(threadSpawn);
-//    connect(threadSpawn,&QThread::started,spwnThread,&ThreadTimer::run);
-
-//    connect(spwnThread, &ThreadTimer::opacify,this,&enemies::opacitySlot);
-//    connect(spwnThread,&ThreadTimer::finish,this,&enemies::spawn);
-//    connect(spwnThread,&ThreadTimer::finish,threadSpawn,&QThread::quit);
-//    connect(threadSpawn,&QThread::finished,threadSpawn,&QThread::deleteLater);
-
-//    threadSpawn->start();
+//    QTimer::singleShot(2000,this,[]{})
 
     healthTimer = new QTimer(this);
     connect(healthTimer, &QTimer::timeout, this, &enemies::updateHealthBar);
@@ -165,6 +107,8 @@ void enemies::glowTick()
     ++tick;
     QGraphicsOpacityEffect *opacity = new QGraphicsOpacityEffect;
     double qr = 1.0f;
+    //qr = (tick<100)?(100-tick)/100:(tick<200)?(tick-100)/100:-1;
+
     if(glowCount<=3)
     {
         if(tick<=100)
@@ -212,8 +156,6 @@ void enemies::moveTo(QPoint nexPosition, int x, int y)
     tX = x;
     tY = y;
     glide(x, y);
-    //move(x,y);
-    //moving = false;
 }
 
 void enemies::moveNext()
@@ -230,8 +172,6 @@ bool enemies::isMoving()
 void enemies::glideTick()
 {
     ++glideT;
-
-  // move(x()+dShiftX,y()+dShiftY);
     qDebug() << properties.type <<"|"<<abs(x()-tX)<<":"<<(y()-tY)<<endl;
     if(glideMax != glideT)
     {
@@ -249,7 +189,6 @@ void enemies::glideTick()
         t->stop();
         t->deleteLater();
     }
-    //QThread::msleep(5);
 
 }
 
@@ -279,42 +218,25 @@ void enemies::glide(int x, int y)
 
     connect(t, &QTimer::timeout,this,&enemies::glideTick);
     t->start();
-
 }
 
 void enemies::start()
 {
     ++tick;
     QGraphicsOpacityEffect *opacity = new QGraphicsOpacityEffect;
-    double qr = 1.0f;
-    qDebug()<<"SPAWNING |"<<tick <<endl;
+    double qr = (tick<100)?(100-tick)/100:(tick<200)?(tick-100)/100:-1;
+    opacity->setOpacity(qr);
+    outline->setGraphicsEffect(opacity);
 
-    if(tick<=200)
-    {
-        if(tick<=100)
-        {
-            qr = (100-tick)/100;
-        }
-        else if(tick<=200)
-        {
-            qr = (tick-100)/100;
-
-        }
-        else if(tick>200)
-        {
-            tick = 0;
-            qr = 1.0f;
-        }
-    }
-    else
+    if(qr<0)
     {
         tick = 0;
         timer->stop();
         timer->deleteLater();
+        opacity->setOpacity(1);
+        outline->setGraphicsEffect(opacity);
         spawned = true;
     }
-    opacity->setOpacity(qr);
-    outline->setGraphicsEffect(opacity);
 
 }
 
@@ -335,8 +257,8 @@ void enemies::updateHealthBar() {
         hBar->hide();
     } else {
         // Change color based on health
-        QString color = properties.health > 100 * 0.5 ? "green" :
-                        properties.health > 100 * 0.25 ? "yellow" : "red";
+        QString color = properties.health >= properties.maxHealth * 0.5 ? "green" :
+                        properties.health >= properties.maxHealth * 0.25 ? "yellow" : "red";
         hBar->setStyleSheet(
             QString(
                 "QProgressBar {"
@@ -349,26 +271,4 @@ void enemies::updateHealthBar() {
             ).arg(color)
         );
     }
-}
-
-
-void enemies::spawnStart(bool spwn)
-{
-    spawned = spwn;
-}
-
-void enemies::Opacity(QGraphicsOpacityEffect* opacity)
-{
-    this->setGraphicsEffect(opacity);
-}
-
-void enemies::spawn()
-{
-    spawned = true;
-}
-
-
-void enemies::opacitySlot(QGraphicsOpacityEffect *op)
-{
-
 }

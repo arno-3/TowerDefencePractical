@@ -2,9 +2,10 @@
 #include <QSoundEffect>
 #include <QTimer>
 #include <QObject>
-#include <gamewindow.h>
+//#include <gamewindow.h>
 #include <QMediaPlayer>
 #include <QMediaPlaylist>
+#include <QGraphicsBlurEffect>
 
 menu::menu(QWidget *parent) : QMainWindow(parent)
 {
@@ -14,43 +15,32 @@ menu::menu(QWidget *parent) : QMainWindow(parent)
 
     //Menu ITEMS
 
-//    menulbl = new QLabel(this);
-//    menulbl->setText("START");
-
-//    menulbl->setStyleSheet("QLabel { font-size: 30px; color: white; border:1px solid white; background-color: #888888;}");
-//    menulbl->move(width()/2-menulbl->width()/2,96);
-
-//    onlinelbl = new QLabel(this);
-//    onlinelbl->setText("ONLINE");
-//    onlinelbl->setStyleSheet("QLabel { font-size: 30px; color: white;}");
-//    onlinelbl->move(width()/2-onlinelbl->width()/2,236);
-
-//    exitlbl = new QLabel(this);
-//    exitlbl->setText("EXIT");
-//    exitlbl->setStyleSheet("QLabel { font-size: 30px; color: white;}");
-//    exitlbl->move(width()/2-exitlbl->width()/2,396);
-
-//    homerlbl = new QLabel(this);
-//    homerlbl->setText("HOMER");
-//    homerlbl->setStyleSheet("color: #7387e4;");
-//    homerlbl->setFont(QFont("Comic Sans MS", 15));
-//    homerlbl->move(width()/2-homerlbl->width()/2,556);
+    introLabel = new QLabel(this);
+    intro = new QMovie(":/SimpsonsIntro.gif");
+    intro->scaledSize().scale(width()*2,height()*2,Qt::KeepAspectRatio);
+    intro->setScaledSize(this->size()/1.001125);
+    introLabel->setFixedSize(this->size());
+    introLabel->setMovie(intro);
+    introLabel->move(0,0);
+    introLabel->show();
+    introLabel->setAlignment(Qt::AlignCenter);
+    intro->jumpToNextFrame();
 
 
     start = new MenuBtn(this,"START",0);
-    start->move(width()/2-start->width()/2,75);
+    start->move(width()/2 -2*start->width(),height()-4*start->height());
     connect(start, &MenuBtn::clicked, this, &menu::onStartClicked);
 
     online = new MenuBtn(this, "ONLINE",0);
-    online->move(width()/2-online->width()/2,215);
+    online->move(width()/2-2*online->width(),height()-2*start->height());
     connect(online, &MenuBtn::clicked, this, &menu::onOnlineClicked);
 
     exit = new MenuBtn(this,"EXIT",0);
-    exit->move(width()/2-exit->width()/2,375);
+    exit->move(width()/2+exit->width(),height()-4*exit->height());
     connect(exit, &MenuBtn::clicked, this, &menu::onExitClicked);
 
     homer = new MenuBtn(this,"HOMER",1);
-    homer->move(width()/2-homer->width()/2,535);
+    homer->move(width()/2+homer->width(),height()-2*homer->height());
     connect(homer, &MenuBtn::clicked, this, &menu::onHomerClicked);
 
     menuEffect = new QMediaPlayer(this);
@@ -67,6 +57,12 @@ menu::menu(QWidget *parent) : QMainWindow(parent)
 
 
 
+//    intro->start();
+
+//    QTimer::singleShot(1200,this,[]{});
+
+
+
 }
 
 
@@ -77,15 +73,14 @@ void menu::onStartClicked(bool state)
     {
         //If this button is clicked:
         //Navigate to the game window
-
-        gamewindow *g = new gamewindow(0,this);
-        g->show();
+        start->hide();
+        online->hide();
+        exit->hide();
+        homer->hide();
 
         menuEffect->stop();
-        menuEffect->deleteLater();
-
         startEffect = new QMediaPlayer(this);
-        QMediaPlaylist *playlist = new QMediaPlaylist(this);
+        playlist = new QMediaPlaylist(this);
 
         // Add media to playlist
         playlist->addMedia(QUrl("qrc:/BattleMusic.mp3")); // Ensure correct path
@@ -96,8 +91,20 @@ void menu::onStartClicked(bool state)
         startEffect->setVolume(50); // 0 to 100
         startEffect->play();
 
-        //this->setWindowState(Qt::WindowMinimized);
+        intro->start();
+
+        QTimer::singleShot(2400,this,[this]()
+        {
+            g = new gamewindow(0,this);
+            g->setVisible(true);
+
+            connect(g,&gamewindow::gameover,this,&menu::stopMusic);
+            connect(g,&gamewindow::homingSignal,this,&menu::backHome);
+            connect(g,&gamewindow::redoSignal,this,&menu::replay);
+            this->setVisible(false);
+        });
     }
+
      m->setState(false);
 }
 
@@ -170,7 +177,16 @@ void menu::onHomerClicked(bool state)
         homie->setFixedSize(w,h);
         homie->setPixmap(p);
         homie->move(width()/8,height()/4);
+        homie->setAttribute(Qt::WA_TranslucentBackground);
         homie->show();
+
+        QGraphicsBlurEffect *introBlur = new QGraphicsBlurEffect;
+        introBlur->setBlurHints(introBlur->AnimationHint);
+        introBlur->setBlurRadius(10);
+
+        introLabel->setGraphicsEffect(introBlur);
+
+
         }
     }
     m->setState(false);
@@ -190,6 +206,37 @@ void menu::onTimerTick()
         online->show();
         exit->show();
         homer->show();
+
         menuEffect->play();
+        introLabel->setGraphicsEffect(nullptr);
     }
+}
+
+void menu::stopMusic()
+{
+    startEffect->stop();
+}
+
+
+void menu::backHome()
+{
+    this->setVisible(true);
+    start->show();
+    exit->show();
+    online->show();
+    homer->show();
+
+    intro->jumpToFrame(0);
+    intro->stop();
+}
+
+void menu::replay()
+{
+    this->setVisible(true);
+    g = new gamewindow(0,this);
+    QTimer::singleShot(1000,this, []{});
+   // emit start->clicked(true);
+    g->setVisible(true);
+    this->setVisible(false);
+    startEffect->play();
 }

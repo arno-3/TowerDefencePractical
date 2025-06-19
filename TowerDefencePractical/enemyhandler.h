@@ -8,13 +8,14 @@
 #include <QMainWindow>
 #include <QWidget>
 #include <QTimer>
+#include <QLabel>
 
 class EnemyHandler : public QObject
 {
     Q_OBJECT
     QThread thread;
 public:
-    explicit EnemyHandler(QObject *pareQMainWindownt = nullptr, QMainWindow *p = nullptr, QThread *thread = nullptr);
+    explicit EnemyHandler(QObject *pareQMainWindownt = nullptr, QMainWindow *p = nullptr);
 
     void setPaths();
    // void updatePaths();
@@ -36,18 +37,24 @@ public:
     // New method to damage enemies
     void damageEnemy(enemies* enemy, int damage);
 
+
 signals:
     void crash(int damage);
 
 private slots:
     void runGame();
 
+public slots:
+    void endGame();
+
 
 
 private:
 
     QVector<enemies*> ennemies;
+    QVector<QPoint*> placedCells;
     QTimer *timer;
+    QLabel *waving;
 
     QWidget *W;
 
@@ -58,6 +65,7 @@ private:
     int mapChart[10][10];
 
     bool waveStarted = false;
+    bool notDead = true;
 };
 
 #endif // ENEMYHANDLER_H

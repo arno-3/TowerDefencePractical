@@ -3,14 +3,15 @@
 //#include <enemyhandler.h>
 #include <QtConcurrent/QtConcurrentRun>
 #include <QSoundEffect>
-#include <QMediaPlayer>
-#include <QMediaPlaylist>
+#include <QGraphicsColorizeEffect>
+#include <QPushButton>
 
 gamewindow::gamewindow(QWidget *parent, QMainWindow *menu) : QMainWindow(parent), selectedTowerType(-1)
 {
     //Minimize MenuWindow
-    menu->setVisible(false);
-
+//    menu->setVisible(false);
+//    Menu = menu;
+//    wave = 0;
     gameTimer = new QTimer(this);
     connect(gameTimer, &QTimer::timeout, this, &gamewindow::updateGame);
     gameTimer->start(16); // ~60 FPS (16ms per frame)
@@ -25,7 +26,8 @@ gamewindow::gamewindow(QWidget *parent, QMainWindow *menu) : QMainWindow(parent)
     RegT->show();
 
     Rprice = new QLabel(this);
-    Rprice->setText("20");
+    Rprice->setText(QString::number(RegT->towerCost));
+    towerCosts[0] = RegT->towerCost;
     Rprice->move(45,70);
     Rprice->setFont(QFont("Comic Sans MS", 15));
     Rprice->setStyleSheet("color: gold; background: transparent;");
@@ -37,7 +39,8 @@ gamewindow::gamewindow(QWidget *parent, QMainWindow *menu) : QMainWindow(parent)
     BigT->show();
 
     Bprice = new QLabel(this);
-    Bprice->setText("30");
+    Bprice->setText(QString::number(BigT->towerCost));
+    towerCosts[1] = BigT->towerCost;
     Bprice->move(145,70);
     Bprice->setFont(QFont("Comic Sans MS", 15));
     Bprice->setStyleSheet("color: gold; background: transparent;");
@@ -49,7 +52,8 @@ gamewindow::gamewindow(QWidget *parent, QMainWindow *menu) : QMainWindow(parent)
     FastT->show();
 
     Fprice = new QLabel(this);
-    Fprice->setText("25");
+    Fprice->setText(QString::number(FastT->towerCost));
+    towerCosts[2] = FastT->towerCost;
     Fprice->move(45,170);
     Fprice->setFont(QFont("Comic Sans MS", 15));
     Fprice->setStyleSheet("color: gold; background: transparent;");
@@ -60,11 +64,12 @@ gamewindow::gamewindow(QWidget *parent, QMainWindow *menu) : QMainWindow(parent)
     MineT->move(RegT->width(), RegT->height());
     MineT->show();
 
-    Bprice = new QLabel(this);
-    Bprice->setText("15");
-    Bprice->move(145,170);
-    Bprice->setFont(QFont("Comic Sans MS", 15));
-    Bprice->setStyleSheet("color: gold; background: transparent;");
+    Mprice = new QLabel(this);
+    Mprice->setText(QString::number(MineT->towerCost));
+    towerCosts[3] = MineT->towerCost;
+    Mprice->move(145,170);
+    Mprice->setFont(QFont("Comic Sans MS", 15));
+    Mprice->setStyleSheet("color: gold; background: transparent;");
 
     connect(MineT, &TowerBtn::towerSelected, this, &gamewindow::onTowerButtonClicked);
 
@@ -93,19 +98,16 @@ gamewindow::gamewindow(QWidget *parent, QMainWindow *menu) : QMainWindow(parent)
     bHealth->setFont(QFont("Comic Sans MS", 15));
 
 
-    thread = new QThread();
-    enemyH = new EnemyHandler(this,this, thread);
-    enemyH->run();
+
+    enemyH = new EnemyHandler(this,this);
     convertIsometric();
 //    QtConcurrent::run([this]{enemyH->run();});
 //    enemyH->
-
-//    enemyH->moveToThread(thread);
+    enemyH->run();
 
     //connect(this,&gamewindow::placedBlock,enemyH,&EnemyHandler::updatePaths);
     connect(enemyH,&EnemyHandler::crash,this,&gamewindow::onCrash);
-
-
+    connect(this, &gamewindow::gameover,enemyH,&EnemyHandler::endGame);
 }
 
 void gamewindow::onExit(QMainWindow *m)
@@ -131,7 +133,7 @@ void gamewindow::convertIsometric()
 
             gridVector[i][j]->setGridPosition(i, j); // Set row and col for click handling
 
-            connect(gridVector[i][j], &gridBlocks::gridClicked, this, &gamewindow::onGridBlockClicked);
+            //connect(gridVector[i][j], &gridBlocks::gridClicked, this, &gamewindow::onGridBlockClicked);
 
 
             // Isometric transformation
@@ -149,9 +151,21 @@ void gamewindow::convertIsometric()
             // Position gridBlocks
             gridVector[i][j]->move(x + xOffset, y + yOffset);
             gridVector[i][j]->setAttribute(Qt::WA_TranslucentBackground); // Ensure transparency
+            gridVector[i][j]->setAttribute(Qt::WA_TransparentForMouseEvents);
             gridVector[i][j]->setStyleSheet("background: rgba(0,0,0,0); border-radius:50px;"); // Remove any back
             gridVector[i][j]->show();
 
+            btnGrid[i][j] = new QPushButton(this);
+            btnGrid[i][j]->move(gridVector[i][j]->get_x()+37,gridVector[i][j]->get_y()+37);
+            btnGrid[i][j]->setFixedSize(40,40);
+            btnGrid[i][j]->setStyleSheet("background: rgba(88,0,0,0); border-radius:12px;");
+            btnGrid[i][j]->show();
+            btnGrid[i][j]->setProperty("row",i);
+            btnGrid[i][j]->setProperty("col",j);
+            btnGrid[i][j]->raise();
+
+            connect(btnGrid[i][j],&QPushButton::clicked,this,&gamewindow::BtnClicked);
+//            connect(btnGrid[i][j],&QPushButton::clicked,gridVector[i][j],&gridBlocks::btnClicked);
             enemyH->setGrid(gridVector[i][j]->x(),gridVector[i][j]->y(),i,j);
 
             // Create and position grass label
@@ -170,8 +184,12 @@ void gamewindow::convertIsometric()
             grassVector[i][j]->setStyleSheet("background: rgba(0,0,0,0);"); // Remove any background
             grassVector[i][j]->setAttribute(Qt::WA_TransparentForMouseEvents); // Ignore mouse events
             grassVector[i][j]->move(x + xOffset, y + yOffset);
-            gridVector[i][j]->raise(); // Ensure gridBlocks is above grass
+
             grassVector[i][j]->show();
+            //gridVector[i][j]->raise(); // Ensure gridBlocks is above grass
+//            gridVector[i][j]->setProperly();
+            btnGrid[i][j]->raise();
+
 
             // Add grid to the vectorgrid in EnemyHAndler
 
@@ -199,9 +217,9 @@ void gamewindow::convertIsometric()
 void gamewindow::onTowerButtonClicked(int towerType)
 {
     selectedTowerType = towerType;
+    selectedTower = (TowerBtn*)QObject::sender();
+
     qDebug() << "Tower selected:" << towerType;
-    TowerBtn *btn = (TowerBtn*)QObject::sender();
-    btn->setStyleSheet("background:rgba(5,5,16,58);");
 }
 
 void gamewindow::onGridBlockClicked(int row, int col)
@@ -248,6 +266,9 @@ void gamewindow::onGridBlockClicked(int row, int col)
             newTower->move(gridVector[row][col]->x() + (gridVector[row][col]->width() - newTower->width()) / 2 + 15,
                            gridVector[row][col]->y() + (gridVector[row][col]->height() - newTower->height()) / 2 + 5);
         }
+//        selectedTower->setAttribute(Qt::WA_TranslucentBackground);
+        selectedTower->setStyleSheet("background:rgba(50,74,128,0);");
+//        selectedTower->deleteLater();
 
         newTower->raise();
         newTower->show();
@@ -257,8 +278,12 @@ void gamewindow::onGridBlockClicked(int row, int col)
         // Deduct gold and update display
         gold -= cost;
         Gold->setText("Gold: " + QString::number(gold));
-        enemyH->updatePaths(row,col);
-        enemyH->setCell(-1,row,col);
+
+        if(selectedTowerType == 3)
+            enemyH->setCell(-2,row, col);
+        else
+            enemyH->setCell(-1,row,col);
+         enemyH->updatePaths(row,col);
         qDebug() << "Tower placed at row:" << row << "col:" << col << "type:" << selectedTowerType << "cost:" << cost;
         selectedTowerType = -1;
     }
@@ -272,12 +297,15 @@ void gamewindow::onCrash(int damage)
 
     if (base_specs.health <= 0)
     {
-         bHealth->setText("BASE HEALTH: 0");
+        bHealth->setText("BASE HEALTH: 0");
+        pHealth->setValue(0);
 
-         QSoundEffect *effect = new QSoundEffect(this);
-         effect->setSource(QUrl("qrc:/GameOver.wav"));
-         effect->setVolume(1); // 0.0 to 1.0 in percentages
-         effect->play();
+        QSoundEffect *effect = new QSoundEffect(this);
+        effect->setSource(QUrl("qrc:/GameOver.wav"));
+        effect->setVolume(1); // 0.0 to 1.0 in percentages
+        effect->play();
+
+        GameOver();
     }
 }
 
@@ -305,7 +333,7 @@ void gamewindow::updateGame() {
                     if (r >= 0 && r < 10 && c >= 0 && c < 10) {
                         for (enemies* enemy : enemyH->getEnemies()) {
                             QPoint enemyPos = enemy->getPos();
-                            if (enemyPos.x() == r && enemyPos.y() == c) {
+                            if (enemyPos.x() == row && enemyPos.y() == col) {
                                 enemyH->damageEnemy(enemy, tower->getDamage());
                                 if (enemy->properties.health <= 0) {
                                     addGold(enemy->properties.goldReward); // Reward gold
@@ -315,6 +343,7 @@ void gamewindow::updateGame() {
                                     effect->setSource(QUrl("qrc:/death.wav"));
                                     effect->setVolume(0.2); // 0.0 to 1.0 in percentages
                                     effect->play();
+
                                 }
                                 attacked = true;
                             }
@@ -322,13 +351,29 @@ void gamewindow::updateGame() {
                     }
                 }
                 if (attacked) {
+
+                    QGraphicsColorizeEffect *clr = new QGraphicsColorizeEffect(tower);
+                    clr->setColor(Qt::red);
+                    clr->setStrength(1);
+                    tower->setGraphicsEffect(clr);
+                    tower->setAttribute(Qt::WA_StyledBackground);
+                    QTimer::singleShot(100, tower, [tower]()
+                    {
+                        tower->setGraphicsEffect(nullptr);
+                    });
+//                    tower->graphicsEffect()->deleteLater();
+//                    tower->setStyleSheet("background-color: transparent;");
+
                     towers.removeOne(tower);
                     tower->deleteLater();
                     tower->hide();
+                    enemyH->setCell(0,row,col);
                     QSoundEffect *effect = new QSoundEffect(this);
                     effect->setSource(QUrl("qrc:/explosion.wav"));
                     effect->setVolume(0.5); // 0.0 to 1.0
                     effect->play();
+
+
                 }
             } else { // Other towers: Attack one enemy
                 for (const auto& pos : adjacent) {
@@ -345,6 +390,7 @@ void gamewindow::updateGame() {
                                     canoneffect->setSource(QUrl("qrc:/cannon.wav"));
                                     canoneffect->setVolume(0.5); // 0.0 to 1.0
                                     canoneffect->play();
+//                                    canoneffect->deleteLater();
                                 }
                                 else if (tower->getTowerType() == 1)//big tower
                                 {
@@ -352,6 +398,7 @@ void gamewindow::updateGame() {
                                     canoneffect->setSource(QUrl("qrc:/BigTowerShot.wav"));
                                     canoneffect->setVolume(0.3); // 0.0 to 1.0
                                     canoneffect->play();
+//                                    canoneffect->deleteLater();
 
                                 }
                                 else if (tower->getTowerType() == 2) //fast lazer tower
@@ -360,6 +407,7 @@ void gamewindow::updateGame() {
                                     canoneffect->setSource(QUrl("qrc:/laser.wav"));
                                     canoneffect->setVolume(0.5); // 0.0 to 1.0
                                     canoneffect->play();
+//                                    canoneffect->deleteLater();
                                 }
 
                                 if (enemy->properties.health <= 0) {
@@ -370,15 +418,36 @@ void gamewindow::updateGame() {
 
                                     addGold(enemy->properties.goldReward); // Reward gold
                                     qDebug() << "Enemy killed, added" << enemy->properties.goldReward << "gold";
+
                                 }
                                 tower->resetCooldown();
-                                tower->setStyleSheet("background-color: red;");
-                                QTimer::singleShot(100, tower, [tower]() {
-                                    tower->setStyleSheet("");
+//                                tower->setStyleSheet("background-color: red;");
+//                                tower->setStyleSheet("mix-blend-mode:multiply; color:red;");
+
+                                QGraphicsColorizeEffect *clr = new QGraphicsColorizeEffect(tower);
+                                clr->setColor(Qt::red);
+                                clr->setStrength(1);
+                                tower->setGraphicsEffect(clr);
+                                tower->setAttribute(Qt::WA_StyledBackground);
+                                QTimer::singleShot(100, tower, [tower]()
+                                {
+                                    tower->setGraphicsEffect(nullptr);
                                 });
+//                                tower->setStyleSheet("background-color: transparent;");
+                                //tower->setAttribute(Qt::WA_TranslucentBackground);
                                 attacked = true;
                                 break;
                             }
+//                            if (enemy->properties.health <= 0) {
+//                                QSoundEffect *effect = new QSoundEffect(this);
+//                                effect->setSource(QUrl("qrc:/death.wav"));
+//                                effect->setVolume(0.3); // 0.0 to 1.0 in percentages
+//                                effect->play();
+
+//                                addGold(enemy->properties.goldReward); // Reward gold
+//                                qDebug() << "Enemy killed, added" << enemy->properties.goldReward << "gold";
+
+//                            }
                         }
                         if (attacked) break;
                     }
@@ -391,4 +460,83 @@ void gamewindow::updateGame() {
 void gamewindow::addGold(int amount) {
     gold += amount;
     Gold->setText("Gold: " + QString::number(gold));
+}
+
+void gamewindow::GameOver()
+{
+    QLabel* colourobj = new QLabel(this);
+
+    QGraphicsBlurEffect* blur = new QGraphicsBlurEffect(this);
+    blur->setBlurHints(blur->PerformanceHint);
+    blur->setBlurRadius(2);
+    emit gameover();
+    QTimer::singleShot(2500,this,[](){});
+
+//    blur->set
+//    this->setGraphicsEffect(blur);
+//    colourobj->setGraphicsEffect(blur);
+    colourobj->setFixedSize(this->size());
+    colourobj->setStyleSheet("background-color:rgba(255,10,10,78);");
+    colourobj->show();
+    colourobj->raise();
+    QTimer::singleShot(2500,this,[](){});
+
+    QLabel* Game = new QLabel(this);
+    Game->move(0,0);
+    Game->setText("Game Over");
+    Game->setAttribute(Qt::WA_TranslucentBackground);
+    Game->setFixedSize(width(),height());
+    Game->setFont(QFont("Comic Sans",56,5,false));
+    Game->setStyleSheet("color:black;background:transparent;");
+   // this->setGraphicsEffect(blur);
+    Game->setAlignment(Qt::AlignCenter);
+    Game->show();
+    Game->raise();
+
+    home = new QPushButton(this);
+    replay = new QPushButton(this);
+
+    home->setFixedSize(300,50);
+    replay->setFixedSize(300,50);
+    home->setFont(QFont("Comic Sans",15,5,false));
+    replay->setFont(QFont("Comic Sans",15,5,false));
+
+    home->move(15,height()-75);
+    replay->move(width()-400,height()-75);
+
+    home->setText("Back Home");
+    home->setParent(this);
+    replay->setText("Retry");
+    home->show();
+    replay->show();
+
+    connect(home,&QPushButton::clicked,this,&gamewindow::backHome);
+    connect(replay, &QPushButton::clicked, this, &gamewindow::retry);
+}
+
+void gamewindow::backHome()
+{
+    emit homingSignal();
+//    this->close();
+//    enemyH->deleteLater();
+    this->deleteLater();
+}
+
+void gamewindow::retry()
+{
+
+//    enemyH->deleteLater();
+    QTimer::singleShot(1000,this, []{});
+
+    emit redoSignal();
+    this->deleteLater();
+}
+
+void gamewindow::BtnClicked()
+{
+    QPushButton* btn = (QPushButton*)QObject::sender();
+    int r = btn->property("row").toInt();
+    int c = btn->property("col").toInt();
+    qDebug() << "Clicking"<<endl;
+    emit onGridBlockClicked(r, c);
 }
