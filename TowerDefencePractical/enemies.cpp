@@ -31,43 +31,43 @@ enemies::enemies(QWidget *parent, int enemyType, QPoint *spawnPos, int x, int y,
 
     switch(enemyType)
     {
-    case 0://Small
-        properties.maxHealth = 20*(1+wave/5);
+    case 0: // Small
+        properties.maxHealth = 20 * (1 + wave / 5);
         properties.health = properties.maxHealth;
-        properties.damage = 5;//percentage
-        properties.speed = 1000;
-        properties.type = 0;//store type
+        properties.damage = 5; // percentage
+        properties.speed = 100; // 100 pixels per second
+        properties.type = 0;
         properties.goldReward = 15;
         outline->setStyleSheet("image: url(:/SmallAlien.png);");
         hBar->setMaximum(properties.maxHealth);
         hBar->setValue(properties.health);
         break;
-    case 1://Big
-        properties.maxHealth = 50*(1+wave/5);
+    case 1: // Big
+        properties.maxHealth = 50 * (1 + wave / 5);
         properties.health = properties.maxHealth;
-        properties.damage = 25;//percentage
-        properties.speed = 1500;
-        properties.type = 1;//store type
+        properties.damage = 25; // percentage
+        properties.speed = 50; // 50 pixels per second
+        properties.type = 1;
         properties.goldReward = 25;
         outline->setStyleSheet("image: url(:/BigAlien.png); background:rgba(0,0,0,0);");
         hBar->setMaximum(properties.maxHealth);
         hBar->setValue(properties.health);
         break;
-    case 2://Spaceship
-        properties.maxHealth = 100*(1+wave/5);
+    case 2: // Spaceship
+        properties.maxHealth = 100 * (1 + wave / 5);
         properties.health = properties.maxHealth;
-        properties.damage = 30;//percentage
-        properties.speed = 2000;
+        properties.damage = 30; // percentage
+        properties.speed = 25; // 25 pixels per second
         properties.goldReward = 45;
-        properties.type = 2;//store type
+        properties.type = 2;
         outline->setStyleSheet("image: url(:/Spaceship.png);");
         hBar->setMaximum(properties.maxHealth);
         hBar->setValue(properties.health);
         break;
     default:
-        properties.damage = 20;//percentage
-        properties.speed = 2;//blocks per second
-        properties.type = 2;//store type
+        properties.damage = 20; // percentage
+        properties.speed = 25; // Default speed
+        properties.type = 2;
         outline->setStyleSheet("image: url(:/Spaceship.png);");
         break;
     }
@@ -194,29 +194,31 @@ void enemies::glideTick()
 
 void enemies::glide(int x, int y)
 {
-    int dX = (x-this->x());
-    int dY = (y-this->y());
+    int dX = (x - this->x());
+    int dY = (y - this->y());
 
     tX = this->x();
     tY = this->y();
 
-    int tickInterval = 10;
+    int tickInterval = 10; // 10ms
+    double distance = std::sqrt(dX * dX + dY * dY); // Euclidean distance
+    double speed = properties.speed; // Pixels per second
+    double timeInSeconds = distance / speed; // Time to cover the distance
+    double tickpermovement = (timeInSeconds * 1000) / tickInterval; // Convert to ticks
 
-    double tickpermovement = (properties.speed/tickInterval);
-    double dx = ((dX)/tickpermovement);
-    double dy = ((dY)/tickpermovement);
+    if (tickpermovement < 1) tickpermovement = 1; // Ensure at least 1 tick
 
-    properties.dX = (dx);
-    properties.dY = (dy);
+    properties.dX = dX / tickpermovement;
+    properties.dY = dY / tickpermovement;
 
-    glideMax =tickpermovement;
+    glideMax = tickpermovement;
     glideT = 0;
-    qDebug() <<"|| "<<glideMax;
+    qDebug() << "Distance =" << distance << ", tickpermovement =" << tickpermovement;
 
     t = new QTimer();
     t->setInterval(tickInterval);
 
-    connect(t, &QTimer::timeout,this,&enemies::glideTick);
+    connect(t, &QTimer::timeout, this, &enemies::glideTick);
     t->start();
 }
 
